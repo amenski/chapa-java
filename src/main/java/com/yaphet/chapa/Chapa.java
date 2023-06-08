@@ -4,11 +4,14 @@ import com.yaphet.chapa.client.ChapaClient;
 import com.yaphet.chapa.client.ChapaClientImpl;
 import com.yaphet.chapa.exception.ChapaException;
 import com.yaphet.chapa.model.*;
+import com.yaphet.chapa.utility.StringUtils;
 import com.yaphet.chapa.utility.Util;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.yaphet.chapa.utility.StringUtils.isNotBlank;
 
 /**
  * The <code>Chapa</code> class is responsible for making GET and POST request to Chapa API to initialize
@@ -61,29 +64,29 @@ public class Chapa {
         String returnUrl = postData.getReturnUrl();
         String subAccountId = postData.getSubAccountId();
 
-        if (Util.notNullAndEmpty(subAccountId)) {
+        if (isNotBlank(subAccountId)) {
             fields.put("subaccount[id]", subAccountId);
         }
 
-        if (Util.notNullAndEmpty(callbackUrl)) {
+        if (isNotBlank(callbackUrl)) {
             fields.put("callback_url", callbackUrl);
         }
 
-        if (Util.notNullAndEmpty(returnUrl)) {
+        if (isNotBlank(returnUrl)) {
             fields.put("return_url", returnUrl);
         }
 
         if (customization != null) {
             // TODO: consider directly adding all values to fields map
-            if (Util.notNullAndEmpty(customization.getTitle())) {
+            if (isNotBlank(customization.getTitle())) {
                 fields.put("customization[title]", customization.getTitle());
             }
 
-            if (Util.notNullAndEmpty(customization.getDescription())) {
+            if (isNotBlank(customization.getDescription())) {
                 fields.put("customization[description]", customization.getDescription());
             }
 
-            if (Util.notNullAndEmpty(customization.getLogo())) {
+            if (isNotBlank(customization.getLogo())) {
                 fields.put("customization[logo]", customization.getLogo());
             }
         }
@@ -114,7 +117,7 @@ public class Chapa {
      * @throws Throwable Throws an exception for failed request to Chapa API.
      */
     public VerifyResponseData verify(String transactionRef) throws Throwable {
-        if (!Util.notNullAndEmpty(transactionRef)) {
+        if (!isNotBlank(transactionRef)) {
             throw new ChapaException("Transaction reference can't be null or empty");
         }
         return chapaClient.verify(transactionRef, SECRETE_KEY);

@@ -14,6 +14,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.yaphet.chapa.model.*;
 
+import static com.yaphet.chapa.utility.StringUtils.isBlank;
+
 /**
  * The <code>Util</code> class serves as a helper class for the main {@link com.yaphet.chapa.Chapa} class.
  */
@@ -29,7 +31,7 @@ public class Util {
      * provided JSON data.
      */
     public static PostData jsonToPostData(String jsonData) {
-        if (!notNullAndEmpty(jsonData)) {
+        if (isBlank(jsonData)) {
             throw new IllegalArgumentException("Can't map null or empty json to PostData object");
         }
 
@@ -59,7 +61,7 @@ public class Util {
      * provided JSON data.
      */
     public static SubAccount jsonToSubAccount(String jsonData) {
-        if (!notNullAndEmpty(jsonData)) {
+        if (isBlank(jsonData)) {
             throw new IllegalArgumentException("Can't map null or empty json to SubAccount object");
         }
 
@@ -108,9 +110,7 @@ public class Util {
      */
     public static List<Bank> extractBanks(String jsonData) {
         JsonObject jsonObject = JSON_MAPPER.fromJson(jsonData, JsonObject.class);
-        Type bankListType = new TypeToken<List<Bank>>() {}.getType();
-
-        return JSON_MAPPER.fromJson(jsonObject.get("data"), bankListType);
+        return JSON_MAPPER.fromJson(jsonObject.get("data"), new TypeToken<List<Bank>>() {}.getType());
     }
 
     /**
@@ -119,13 +119,5 @@ public class Util {
     public static String generateToken() {
         final LocalDateTime now = LocalDateTime.now(CLOCK);
         return UUID.randomUUID().toString().substring(0, 8) + "_" + FORMATTER.format(now);
-    }
-
-    public static boolean notNullAndEmpty(String value) {
-        return value != null && !value.isEmpty();
-    }
-
-    public static boolean is2xxSuccessful(int statucCode) {
-        return (statucCode / 100) == 2;
     }
 }

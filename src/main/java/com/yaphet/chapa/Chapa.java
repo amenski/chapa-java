@@ -1,11 +1,8 @@
 package com.yaphet.chapa;
 
 import com.yaphet.chapa.client.ChapaClient;
-import com.yaphet.chapa.client.ChapaClientImpl;
 import com.yaphet.chapa.exception.ChapaException;
 import com.yaphet.chapa.model.*;
-import com.yaphet.chapa.utility.StringUtils;
-import com.yaphet.chapa.utility.Util;
 
 import java.util.HashMap;
 import java.util.List;
@@ -91,7 +88,7 @@ public class Chapa {
             }
         }
 
-        return chapaClient.initialize(fields, SECRETE_KEY);
+        return chapaClient.initialize(SECRETE_KEY, fields);
     }
 
     /**
@@ -105,7 +102,7 @@ public class Chapa {
      */
 
     public InitializeResponseData initialize(String jsonData) throws Throwable {
-        return chapaClient.initialize(jsonData, SECRETE_KEY);
+        return chapaClient.initialize(SECRETE_KEY, jsonData);
     }
 
     /**
@@ -120,7 +117,7 @@ public class Chapa {
         if (!isNotBlank(transactionRef)) {
             throw new ChapaException("Transaction reference can't be null or empty");
         }
-        return chapaClient.verify(transactionRef, SECRETE_KEY);
+        return chapaClient.verify(SECRETE_KEY, transactionRef);
     }
 
     /**
@@ -150,7 +147,7 @@ public class Chapa {
         fields.put("split_type", subAccount.getSplitType().name().toLowerCase());
         fields.put("split_value", subAccount.getSplitValue());
 
-        return chapaClient.createSubAccount(fields, SECRETE_KEY);
+        return chapaClient.createSubAccount(SECRETE_KEY, fields);
     }
 
     /**

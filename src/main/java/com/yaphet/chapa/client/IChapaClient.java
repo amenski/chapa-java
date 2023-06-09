@@ -11,15 +11,15 @@ import java.util.Map;
 
 public interface IChapaClient {
 
-    InitializeResponseData initialize(Map<String, Object> fields, final String secretKey) throws ChapaException;
+    InitializeResponseData initialize(final String secretKey, Map<String, Object> fields) throws ChapaException;
 
-    InitializeResponseData initialize(final String body, final String secretKey) throws ChapaException;
+    InitializeResponseData initialize(final String secretKey, final String body) throws ChapaException;
 
-    VerifyResponseData verify(String transactionReference, String secretKey) throws ChapaException;
+    VerifyResponseData verify(String secretKey, String transactionReference) throws ChapaException;
 
     List<Bank> getBanks(String secretKey) throws ChapaException;
 
-    SubAccountResponseData createSubAccount(Map<String, Object> fields, String secretKey) throws ChapaException;
+    SubAccountResponseData createSubAccount(String secretKey, Map<String, Object> fields) throws ChapaException;
 
     SubAccountResponseData createSubAccount(String body, String secretKey) throws ChapaException;
 }

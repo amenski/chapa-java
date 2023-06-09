@@ -1,6 +1,7 @@
 package com.yaphet.chapa;
 
 import com.google.gson.Gson;
+import com.yaphet.chapa.client.ChapaClient;
 import com.yaphet.chapa.client.ChapaClientImpl;
 import com.yaphet.chapa.model.*;
 import com.yaphet.chapa.utility.Util;
@@ -22,57 +23,56 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ChapaTest {
-//
-//    private final Gson gson = new Gson();
-//    private ChapaClientImpl chapaClient;
-//    private Chapa underTest;
-//    private PostData postData;
-//    private String postDataString;
-//    private SubAccount subAccount;
-//    private String subAccountString;
-//
-//    @BeforeEach
-//    void setUp() {
-//        chapaClient = mock(ChapaClientImpl.class);
-//        underTest = new Chapa(chapaClient, "secrete-key");
-//        Customization customization = new Customization()
-//                .setTitle("E-commerce")
-//                .setDescription("It is time to pay")
-//                .setLogo("https://mylogo.com/log.png");
-//        postData = new PostData()
-//                .setAmount(new BigDecimal("100"))
-//                .setCurrency("ETB")
-//                .setFirstName("Abebe")
-//                .setLastName("Bikila")
-//                .setEmail("abebe@bikila.com")
-//                .setTxRef(Util.generateToken())
-//                .setCallbackUrl("https://chapa.co")
-//                .setReturnUrl("https://chapa.co")
-//                .setSubAccountId("testSubAccountId")
-//                .setCustomization(customization);
-//        postDataString = " { " +
-//                "'amount': '100', " +
-//                "'currency': 'ETB'," +
-//                "'email': 'abebe@bikila.com'," +
-//                "'first_name': 'Abebe'," +
-//                "'last_name': 'Bikila'," +
-//                "'tx_ref': 'tx-myecommerce12345'," +
-//                "'callback_url': 'https://chapa.co'," +
-//                "'return_url': 'https://chapa.co'," +
-//                "'subaccount[id]': 'testSubAccountId'," +
-//                "'customizations':{'customization[title]':'E-commerce','customization[description]':'It is time to pay','customization[logo]':'https://mylogo.com/log.png'}" +
-//                " }";
-//        subAccount = new SubAccount()
-//                .setBusinessName("Abebe Suq")
-//                .setAccountName("Abebe Bikila")
-//                .setAccountNumber("0123456789")
-//                .setBankCode("001")
-//                .setSplitType(SplitType.PERCENTAGE)
-//                .setSplitValue(0.2);
-//        subAccountString = "{'business_name':'Abebe Suq','bank_code':'001','account_name':'Abebe Bikila','account_number':'0123456789','split_type':'PERCENTAGE','split_value':0.2}";
-//    }
-//
-//    // This is not really a unit test ):
+
+    private final Gson gson = new Gson();
+    private ChapaClient chapaClient;
+    private Chapa underTest;
+    private PostData postData;
+    private String postDataString;
+    private SubAccount subAccount;
+    private String subAccountString;
+
+    @BeforeEach
+    void setUp() {
+        chapaClient = mock(ChapaClient.class);
+        underTest = new Chapa(chapaClient, "secrete-key");
+        Customization customization = new Customization()
+                .setTitle("E-commerce")
+                .setDescription("It is time to pay")
+                .setLogo("https://mylogo.com/log.png");
+        postData = new PostData()
+                .setAmount(new BigDecimal("100"))
+                .setCurrency("ETB")
+                .setFirstName("Abebe")
+                .setLastName("Bikila")
+                .setEmail("abebe@bikila.com")
+                .setTxRef(Util.generateToken())
+                .setCallbackUrl("https://chapa.co")
+                .setReturnUrl("https://chapa.co")
+                .setSubAccountId("testSubAccountId")
+                .setCustomization(customization);
+        postDataString = " { " +
+                "'amount': '100', " +
+                "'currency': 'ETB'," +
+                "'email': 'abebe@bikila.com'," +
+                "'first_name': 'Abebe'," +
+                "'last_name': 'Bikila'," +
+                "'tx_ref': 'tx-myecommerce12345'," +
+                "'callback_url': 'https://chapa.co'," +
+                "'return_url': 'https://chapa.co'," +
+                "'subaccount[id]': 'testSubAccountId'," +
+                "'customizations':{'customization[title]':'E-commerce','customization[description]':'It is time to pay','customization[logo]':'https://mylogo.com/log.png'}" +
+                " }";
+        subAccount = new SubAccount()
+                .setBusinessName("Abebe Suq")
+                .setAccountName("Abebe Bikila")
+                .setAccountNumber("0123456789")
+                .setBankCode("001")
+                .setSplitType(SplitType.PERCENTAGE)
+                .setSplitValue(0.2);
+        subAccountString = "{'business_name':'Abebe Suq','bank_code':'001','account_name':'Abebe Bikila','account_number':'0123456789','split_type':'PERCENTAGE','split_value':0.2}";
+    }
+
 //    @Test
 //    public void shouldInitializeTransaction_asString() throws Throwable {
 //        // given
@@ -87,7 +87,7 @@ class ChapaTest {
 //        verify(chapaClient).post(anyString(), anyMap(), anyString());
 //        JSONAssert.assertEquals(expectedResponse, actualResponse, true);
 //    }
-//
+
 //    @Test
 //    public void shouldInitializeTransaction_asResponseData() throws Throwable {
 //        // given

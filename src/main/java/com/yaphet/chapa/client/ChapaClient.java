@@ -25,7 +25,7 @@ public class ChapaClient implements IChapaClient {
     }
 
     @Override
-    public InitializeResponseData initialize(Map<String, Object> fields, final String secretKey) throws ChapaException {
+    public InitializeResponseData initialize(final String secretKey, Map<String, Object> fields) throws ChapaException {
         try {
             Response<String> response = getClient().initialize("Bearer " + secretKey, fields).execute();
             if (!response.isSuccessful()) {
@@ -40,12 +40,12 @@ public class ChapaClient implements IChapaClient {
     }
 
     @Override
-    public InitializeResponseData initialize(final String body, final String secretKey) throws ChapaException {
-        return this.initialize(new Gson().fromJson(body, Map.class), secretKey);
+    public InitializeResponseData initialize(final String secretKey, final String body) throws ChapaException {
+        return this.initialize(secretKey, new Gson().fromJson(body, Map.class));
     }
 
     @Override
-    public VerifyResponseData verify(final String transactionReference, final String secretKey) throws ChapaException {
+    public VerifyResponseData verify(final String secretKey, final String transactionReference) throws ChapaException {
         try {
             Response<String> response = getClient().verify("Bearer " + secretKey, transactionReference).execute();
             if (!response.isSuccessful()) {
@@ -73,7 +73,7 @@ public class ChapaClient implements IChapaClient {
     }
 
     @Override
-    public SubAccountResponseData createSubAccount(Map<String, Object> fields, final String secretKey) throws ChapaException {
+    public SubAccountResponseData createSubAccount(final String secretKey, Map<String, Object> fields) throws ChapaException {
         try {
             Response<String> response = getClient().createSubAccount("Bearer " + secretKey, fields).execute();
             if (!response.isSuccessful()) {
@@ -89,7 +89,7 @@ public class ChapaClient implements IChapaClient {
 
     @Override
     public SubAccountResponseData createSubAccount(final String body, final String secretKey) throws ChapaException {
-        return this.createSubAccount(new Gson().fromJson(body, Map.class), secretKey);
+        return this.createSubAccount(secretKey, new Gson().fromJson(body, Map.class));
     }
     
     private ChapaClientApi getClient() {

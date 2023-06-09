@@ -1,10 +1,9 @@
-package com.yaphet.chapa;
+package it.aman.chapa;
 
-import com.yaphet.chapa.client.ChapaClient;
-import com.yaphet.chapa.client.ChapaClientImpl;
-import com.yaphet.chapa.exception.ChapaException;
-import com.yaphet.chapa.model.*;
-import com.yaphet.chapa.utility.Util;
+import it.aman.chapa.client.ChapaClient;
+import it.aman.chapa.exception.ChapaException;
+import it.aman.chapa.model.*;
+import it.aman.chapa.utility.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,11 +15,7 @@ import java.util.Map;
  */
 public class Chapa {
 
-    private static String responseBody;
-    private static int statusCode;
     private final ChapaClient chapaClient;
-    private final String VERSION = "v1";
-    private final String BASE_URL = "https://api.chapa.co/" + VERSION;
     private final String SECRETE_KEY;
 
     /**
@@ -28,7 +23,7 @@ public class Chapa {
      */
     public Chapa(String secreteKey) { // TODO: consider deprecating this since it makes it hard to test this class
         this.SECRETE_KEY = secreteKey;
-        this.chapaClient = new ChapaClientImpl();
+        this.chapaClient = new ChapaClient("https://api.chapa.co/v1");
     }
 
     /**
@@ -65,45 +60,34 @@ public class Chapa {
         String returnUrl = postData.getReturnUrl();
         String subAccountId = postData.getSubAccountId();
 
-        if (Util.notNullAndEmpty(subAccountId)) {
+        if (StringUtils.isNotBlank(subAccountId)) {
             fields.put("subaccount[id]", subAccountId);
         }
 
-        if (Util.notNullAndEmpty(callbackUrl)) {
+        if (StringUtils.isNotBlank(callbackUrl)) {
             fields.put("callback_url", callbackUrl);
         }
 
-        if (Util.notNullAndEmpty(returnUrl)) {
+        if (StringUtils.isNotBlank(returnUrl)) {
             fields.put("return_url", returnUrl);
         }
 
         if (customization != null) {
             // TODO: consider directly adding all values to fields map
-            if (Util.notNullAndEmpty(customization.getTitle())) {
+            if (StringUtils.isNotBlank(customization.getTitle())) {
                 fields.put("customization[title]", customization.getTitle());
             }
 
-            if (Util.notNullAndEmpty(customization.getDescription())) {
+            if (StringUtils.isNotBlank(customization.getDescription())) {
                 fields.put("customization[description]", customization.getDescription());
             }
 
-            if (Util.notNullAndEmpty(customization.getLogo())) {
+            if (StringUtils.isNotBlank(customization.getLogo())) {
                 fields.put("customization[logo]", customization.getLogo());
             }
         }
 
-        responseBody = chapaClient.post(BASE_URL + "/transaction/initialize", fields, SECRETE_KEY);
-        statusCode = chapaClient.getStatusCode();
-
-        if(!Util.is2xxSuccessful(chapaClient.getStatusCode())) {
-           throw new ChapaException(responseBody);
-        }
-
-        InitializeResponseData initializeResponseData = Util.jsonToInitializeResponseData(responseBody)
-                .setRawJson(responseBody)
-                .setStatusCode(statusCode);
-
-        return initializeResponseData;
+        return chapaClient.initialize(SECRETE_KEY, fields);
     }
 
     /**
@@ -117,18 +101,7 @@ public class Chapa {
      */
 
     public InitializeResponseData initialize(String jsonData) throws Throwable {
-        responseBody = chapaClient.post(BASE_URL + "/transaction/initialize", jsonData, SECRETE_KEY);
-        statusCode = chapaClient.getStatusCode();
-
-        if(!Util.is2xxSuccessful(chapaClient.getStatusCode())) {
-            throw new ChapaException(responseBody);
-        }
-
-        InitializeResponseData initializeResponseData = Util.jsonToInitializeResponseData(responseBody)
-                .setRawJson(responseBody)
-                .setStatusCode(statusCode);
-
-        return initializeResponseData;
+        return chapaClient.initialize(SECRETE_KEY, jsonData);
     }
 
     /**
@@ -140,36 +113,18 @@ public class Chapa {
      * @throws Throwable Throws an exception for failed request to Chapa API.
      */
     public VerifyResponseData verify(String transactionRef) throws Throwable {
-        if (!Util.notNullAndEmpty(transactionRef)) {
-            throw new IllegalArgumentException("Transaction reference can't be null or empty");
+        if (!StringUtils.isNotBlank(transactionRef)) {
+            throw new ChapaException("Transaction reference can't be null or empty");
         }
-        responseBody = chapaClient.get(BASE_URL + "/transaction/verify/" + transactionRef, SECRETE_KEY);
-        statusCode = chapaClient.getStatusCode();
-
-        if(!Util.is2xxSuccessful(chapaClient.getStatusCode())) {
-            throw new ChapaException(responseBody);
-        }
-
-        VerifyResponseData verifyResponseData = Util.jsonToVerifyResponseData(responseBody)
-                .setRawJson(responseBody)
-                .setStatusCode(statusCode);
-
-        return verifyResponseData;
+        return chapaClient.verify(SECRETE_KEY, transactionRef);
     }
 
     /**
      * @return A list of {@link Bank} containing all banks supported by Chapa.
      * @throws Throwable Throws an exception for failed request to Chapa API.
      */
-    public List<Bank> banks() throws Throwable {
-        responseBody = chapaClient.get(BASE_URL + "/banks", SECRETE_KEY);
-        statusCode = chapaClient.getStatusCode();
-
-        if(!Util.is2xxSuccessful(chapaClient.getStatusCode())) {
-            throw new ChapaException(responseBody);
-        }
-
-        return Util.extractBanks(responseBody);
+    public List<Bank> getBanks() throws Throwable {
+        return chapaClient.getBanks(SECRETE_KEY);
     }
 
     /**
@@ -190,18 +145,8 @@ public class Chapa {
         fields.put("bank_code", subAccount.getBankCode());
         fields.put("split_type", subAccount.getSplitType().name().toLowerCase());
         fields.put("split_value", subAccount.getSplitValue());
-        responseBody = chapaClient.post(BASE_URL + "/subaccount", fields, SECRETE_KEY);
-        statusCode = chapaClient.getStatusCode();
 
-        if(!Util.is2xxSuccessful(chapaClient.getStatusCode())) {
-            throw new ChapaException(responseBody);
-        }
-
-        SubAccountResponseData subAccountResponseData = Util.jsonToSubAccountResponseData(responseBody)
-                .setRawJson(responseBody)
-                .setStatusCode(statusCode);
-
-        return subAccountResponseData;
+        return chapaClient.createSubAccount(SECRETE_KEY, fields);
     }
 
     /**
@@ -214,18 +159,7 @@ public class Chapa {
      * @throws Throwable Throws an exception for failed request to Chapa API.
      */
     public SubAccountResponseData createSubAccount(String jsonData) throws Throwable {
-        responseBody = chapaClient.post(BASE_URL + "/subaccount", jsonData, SECRETE_KEY);
-        statusCode = chapaClient.getStatusCode();
-
-        if(!Util.is2xxSuccessful(chapaClient.getStatusCode())) {
-            throw new ChapaException(responseBody);
-        }
-
-        SubAccountResponseData subAccountResponseData = Util.jsonToSubAccountResponseData(responseBody)
-                .setRawJson(responseBody)
-                .setStatusCode(statusCode);
-
-        return subAccountResponseData;
+       return chapaClient.createSubAccount(jsonData, SECRETE_KEY);
     }
 
 }

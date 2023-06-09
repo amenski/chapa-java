@@ -1,4 +1,4 @@
-package com.yaphet.chapa.utility;
+package it.aman.chapa.utility;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -12,10 +12,11 @@ import java.util.UUID;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.yaphet.chapa.model.*;
+import it.aman.chapa.Chapa;
+import it.aman.chapa.model.*;
 
 /**
- * The <code>Util</code> class serves as a helper class for the main {@link com.yaphet.chapa.Chapa} class.
+ * The <code>Util</code> class serves as a helper class for the main {@link Chapa} class.
  */
 public class Util {
 
@@ -29,14 +30,13 @@ public class Util {
      * provided JSON data.
      */
     public static PostData jsonToPostData(String jsonData) {
-        if (!notNullAndEmpty(jsonData)) {
+        if (StringUtils.isBlank(jsonData)) {
             throw new IllegalArgumentException("Can't map null or empty json to PostData object");
         }
 
         Map<String, String> newMap = jsonToMap(jsonData);
         JsonObject jsonObject = JSON_MAPPER.fromJson(jsonData, JsonObject.class);
-        Type bankListType = new TypeToken<Map<String, String>>() {}.getType();
-        Map<String, String> customizations = JSON_MAPPER.fromJson(jsonObject.get("customizations"), bankListType);
+        Map<String, String> customizations = JSON_MAPPER.fromJson(jsonObject.get("customizations"), new TypeToken<Map<String, String>>() {}.getType());
         Customization customization = new Customization()
                 .setTitle(customizations.get("customization[title]"))
                 .setTitle(customizations.get("customization[description]"))
@@ -59,7 +59,7 @@ public class Util {
      * provided JSON data.
      */
     public static SubAccount jsonToSubAccount(String jsonData) {
-        if (!notNullAndEmpty(jsonData)) {
+        if (StringUtils.isBlank(jsonData)) {
             throw new IllegalArgumentException("Can't map null or empty json to SubAccount object");
         }
 
@@ -108,9 +108,7 @@ public class Util {
      */
     public static List<Bank> extractBanks(String jsonData) {
         JsonObject jsonObject = JSON_MAPPER.fromJson(jsonData, JsonObject.class);
-        Type bankListType = new TypeToken<List<Bank>>() {}.getType();
-
-        return JSON_MAPPER.fromJson(jsonObject.get("data"), bankListType);
+        return JSON_MAPPER.fromJson(jsonObject.get("data"), new TypeToken<List<Bank>>() {}.getType());
     }
 
     /**
@@ -119,13 +117,5 @@ public class Util {
     public static String generateToken() {
         final LocalDateTime now = LocalDateTime.now(CLOCK);
         return UUID.randomUUID().toString().substring(0, 8) + "_" + FORMATTER.format(now);
-    }
-
-    public static boolean notNullAndEmpty(String value) {
-        return value != null && !value.isEmpty();
-    }
-
-    public static boolean is2xxSuccessful(int statucCode) {
-        return (statucCode / 100) == 2;
     }
 }

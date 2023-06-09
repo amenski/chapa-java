@@ -1,4 +1,4 @@
-package com.yaphet.chapa.exception;
+package it.aman.chapa.exception;
 
 /**
  * A ChapaException is thrown to signal a problem during SDK execution.

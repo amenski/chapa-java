@@ -1,8 +1,8 @@
-package com.yaphet.chapa.model;
+package it.aman.chapa.model;
 
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import com.yaphet.chapa.utility.LocalDateTimeDeserializer;
+import it.aman.chapa.utility.LocalDateTimeDeserializer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

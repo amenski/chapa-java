@@ -1,4 +1,4 @@
-package com.yaphet.chapa.model;
+package it.aman.chapa.model;
 
 import com.google.gson.annotations.SerializedName;
 

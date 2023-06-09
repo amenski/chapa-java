@@ -1,6 +1,6 @@
-package com.yaphet.chapa;
+package it.aman.chapa;
 
-import com.yaphet.chapa.model.Customization;
+import it.aman.chapa.model.Customization;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 

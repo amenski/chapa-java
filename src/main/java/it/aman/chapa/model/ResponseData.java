@@ -1,4 +1,4 @@
-package com.yaphet.chapa.model;
+package it.aman.chapa.model;
 
 /**
  * The <code>ResponseData</code> class is an abstract class that

@@ -39,7 +39,7 @@ public class SubAccountResponseData extends ResponseData {
         return data;
     }
 
-    public static class Data {
+    private static class Data {
        @SerializedName("subaccounts[id]")
        private String subAccountId;
 

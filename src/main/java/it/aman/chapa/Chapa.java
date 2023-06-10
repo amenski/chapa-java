@@ -131,27 +131,19 @@ public class Chapa {
      * <p>This method is used to create a sub account in Chapa. It is an overloaded method
      * of {@link #createSubAccount(String)}.</p><br>
      *
-     * @param subAccount An object of {@link SubAccount} containing
+     * @param subAccountDto An object of {@link SubAccountDto} containing
      *                   sub account details.
      * @return An object of {@link SubAccountResponseData} containing
      *        response data from Chapa API.
      * @throws Throwable Throws an exception for failed request to Chapa API.
      */
-    public SubAccountResponseData createSubAccount(SubAccount subAccount) throws Throwable {
-        Map<String, Object> fields = new HashMap<>();
-        fields.put("business_name", subAccount.getBusinessName());
-        fields.put("account_name", subAccount.getAccountName());
-        fields.put("account_number", subAccount.getAccountNumber());
-        fields.put("bank_code", subAccount.getBankCode());
-        fields.put("split_type", subAccount.getSplitType().name().toLowerCase());
-        fields.put("split_value", subAccount.getSplitValue());
-
-        return chapaClient.createSubAccount(SECRETE_KEY, fields);
+    public SubAccountResponseData createSubAccount(SubAccountDto subAccountDto) throws Throwable {
+        return chapaClient.createSubAccount(SECRETE_KEY, subAccountDto.getAsMap());
     }
 
     /**
      * <p>This method is used to create a sub account in Chapa. It is an overloaded method
-     * of {@link #createSubAccount(SubAccount)}.</p><br>
+     * of {@link #createSubAccount(SubAccountDto)}.</p><br>
      *
      * @param jsonData A json string containing sub account details.
      * @return An object of {@link SubAccountResponseData} containing

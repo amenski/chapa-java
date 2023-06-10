@@ -2,7 +2,10 @@ package it.aman.chapa.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class SubAccount {
+import java.util.HashMap;
+import java.util.Map;
+
+public class SubAccountDto {
 
     @SerializedName("business_name")
     private String businessName;
@@ -21,7 +24,7 @@ public class SubAccount {
         return businessName;
     }
 
-    public SubAccount setBusinessName(String businessName) {
+    public SubAccountDto setBusinessName(String businessName) {
         this.businessName = businessName;
         return this;
     }
@@ -30,7 +33,7 @@ public class SubAccount {
         return bankCode;
     }
 
-    public SubAccount setBankCode(String bankCode) {
+    public SubAccountDto setBankCode(String bankCode) {
         this.bankCode = bankCode;
         return this;
     }
@@ -39,7 +42,7 @@ public class SubAccount {
         return accountName;
     }
 
-    public SubAccount setAccountName(String accountName) {
+    public SubAccountDto setAccountName(String accountName) {
         this.accountName = accountName;
         return this;
     }
@@ -48,7 +51,7 @@ public class SubAccount {
         return accountNumber;
     }
 
-    public SubAccount setAccountNumber(String accountNumber) {
+    public SubAccountDto setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
         return this;
     }
@@ -57,7 +60,7 @@ public class SubAccount {
         return splitType;
     }
 
-    public SubAccount setSplitType(SplitType splitType) {
+    public SubAccountDto setSplitType(SplitType splitType) {
         this.splitType = splitType;
         return this;
     }
@@ -66,8 +69,21 @@ public class SubAccount {
         return splitValue;
     }
 
-    public SubAccount setSplitValue(Double splitValue) {
+    public SubAccountDto setSplitValue(Double splitValue) {
         this.splitValue = splitValue;
         return this;
+    }
+
+    public Map<String, Object> getAsMap() {
+        return new HashMap<String, Object>() {
+            {
+                put("business_name",  getBusinessName());
+                put("account_name",   getAccountName());
+                put("account_number", getAccountNumber());
+                put("bank_code",      getBankCode());
+                put("split_type",     getSplitType().name().toLowerCase());
+                put("split_value",    getSplitValue());
+            }
+        };
     }
 }

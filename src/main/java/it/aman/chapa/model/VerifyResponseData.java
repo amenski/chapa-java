@@ -44,7 +44,7 @@ public class VerifyResponseData extends ResponseData {
         return data;
     }
 
-  public static class Data {
+  private static class Data {
 
       @SerializedName("first_name")
       private String firstName;

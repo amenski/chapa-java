@@ -2,7 +2,7 @@ package it.aman.chapa;
 
 import com.google.gson.Gson;
 import it.aman.chapa.client.ChapaClient;
-import it.aman.chapa.model.SubAccount;
+import it.aman.chapa.model.SubAccountDto;
 import it.aman.chapa.utility.Util;
 import it.aman.chapa.model.Customization;
 import it.aman.chapa.model.PostData;
@@ -24,7 +24,7 @@ class ChapaTest {
     private Chapa underTest;
     private PostData postData;
     private String postDataString;
-    private SubAccount subAccount;
+    private SubAccountDto subAccountDto;
     private String subAccountString;
 
     @BeforeEach
@@ -58,7 +58,7 @@ class ChapaTest {
                 "'subaccount[id]': 'testSubAccountId'," +
                 "'customizations':{'customization[title]':'E-commerce','customization[description]':'It is time to pay','customization[logo]':'https://mylogo.com/log.png'}" +
                 " }";
-        subAccount = new SubAccount()
+        subAccountDto = new SubAccountDto()
                 .setBusinessName("Abebe Suq")
                 .setAccountName("Abebe Bikila")
                 .setAccountNumber("0123456789")
@@ -184,7 +184,7 @@ class ChapaTest {
 //        // when
 //        when(chapaClient.post(anyString(), anyMap(), anyString())).thenReturn(expectedResponse);
 //        when(chapaClient.getStatusCode()).thenReturn(200);
-//        String actualResponse = underTest.createSubAccount(subAccount).asString();
+//        String actualResponse = underTest.createSubAccount(subAccountDto).asString();
 //
 //        // then
 //        verify(chapaClient).post(anyString(), anyMap(), anyString());
@@ -219,7 +219,7 @@ class ChapaTest {
 //        // when
 //        when(chapaClient.post(anyString(), anyMap(), anyString())).thenReturn(expectedResponse);
 //        when(chapaClient.getStatusCode()).thenReturn(200);
-//        SubAccountResponseData actualResponse = underTest.createSubAccount(subAccount);
+//        SubAccountResponseData actualResponse = underTest.createSubAccount(subAccountDto);
 //
 //        // then
 //        verify(chapaClient).post(anyString(), anyMap(), anyString());
@@ -247,7 +247,7 @@ class ChapaTest {
 //                .setReturnUrl("https://chapa.co")
 //                .setSubAccountId("testSubAccountId")
 //                .setCustomization(customization);
-//        subAccount = new SubAccount()
+//        subAccountDto = new SubAccountDto()
 //                .setBusinessName("Abebe Suq")
 //                .setAccountName("Abebe Bikila")
 //                .setAccountNumber("0123456789")
@@ -261,7 +261,7 @@ class ChapaTest {
 //        Chapa chapa = new Chapa("");
 //        List<Bank> banks = chapa.banks();
 //        banks.forEach(bank -> System.out.println("Bank name: " + bank.getName() + " Bank Code: " + bank.getId()));
-//        System.out.println("Create SubAccount response: " + chapa.createSubAccount(subAccount).asString());
+//        System.out.println("Create SubAccountDto response: " + chapa.createSubAccount(subAccountDto).asString());
 //        System.out.println("Initialize response with PostData: " + chapa.initialize(postData).asString());
 //        System.out.println("Initialize response with JsonData: " + chapa.initialize(formData).asString());
 //        System.out.println("Verify response: " + chapa.verify(postData.getTxRef()).asString());

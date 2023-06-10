@@ -1,6 +1,5 @@
 package it.aman.chapa.utility;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -54,16 +53,16 @@ public class Util {
     }
 
     /**
-     * @param jsonData A json string to be mapped to a {@link SubAccount} object.
-     * @return A {@link SubAccount} object which contains post fields of the
+     * @param jsonData A json string to be mapped to a {@link SubAccountDto} object.
+     * @return A {@link SubAccountDto} object which contains post fields of the
      * provided JSON data.
      */
-    public static SubAccount jsonToSubAccount(String jsonData) {
+    public static SubAccountDto jsonToSubAccount(String jsonData) {
         if (StringUtils.isBlank(jsonData)) {
-            throw new IllegalArgumentException("Can't map null or empty json to SubAccount object");
+            throw new IllegalArgumentException("Can't map null or empty json to SubAccountDto object");
         }
 
-        return JSON_MAPPER.fromJson(jsonData, SubAccount.class);
+        return JSON_MAPPER.fromJson(jsonData, SubAccountDto.class);
     }
 
     /**

@@ -3,6 +3,8 @@ package it.aman.chapa.model;
 import com.google.gson.annotations.SerializedName;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The PostData class is an object representation of JSON form data
@@ -115,5 +117,18 @@ public class PostData {
     public PostData setCustomization(Customization customization) {
         this.customization = customization;
         return this;
+    }
+
+    public Map<String, Object> getAsMap() {
+        return new HashMap<String, Object>(){
+            {
+                put("amount",     getAmount().toString());
+                put("currency",   getCurrency());
+                put("email",      getEmail());
+                put("first_name", getFirstName());
+                put("last_name",  getLastName());
+                put("tx_ref",     getTxRef());
+            }
+        };
     }
 }

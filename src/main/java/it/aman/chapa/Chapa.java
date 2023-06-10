@@ -1,11 +1,11 @@
 package it.aman.chapa;
 
 import it.aman.chapa.client.ChapaClient;
+import it.aman.chapa.client.IChapaClient;
 import it.aman.chapa.exception.ChapaException;
 import it.aman.chapa.model.*;
 import it.aman.chapa.utility.StringUtils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,16 +15,8 @@ import java.util.Map;
  */
 public class Chapa {
 
-    private final ChapaClient chapaClient;
+    private final IChapaClient chapaClient;
     private final String SECRETE_KEY;
-
-    /**
-     * @param secreteKey A secrete key provided from Chapa.
-     */
-    public Chapa(String secreteKey) { // TODO: consider deprecating this since it makes it hard to test this class
-        this.SECRETE_KEY = secreteKey;
-        this.chapaClient = new ChapaClient("https://api.chapa.co/v1");
-    }
 
     /**
      * @param secreteKey  A secrete key provided from Chapa.
@@ -33,6 +25,14 @@ public class Chapa {
     public Chapa(ChapaClient chapaClient, String secreteKey) {
         this.chapaClient = chapaClient;
         this.SECRETE_KEY = secreteKey;
+    }
+
+    /**
+     * @param builder A builder with client and secretKey set
+     */
+    public Chapa(ChapaBuilder builder) {
+        this.chapaClient = builder.client;
+        this.SECRETE_KEY = builder.secretKey;
     }
 
 
@@ -47,13 +47,7 @@ public class Chapa {
      * @throws Throwable Throws an exception for failed request to Chapa API.
      */
     public InitializeResponseData initialize(PostData postData) throws Throwable { // TODO: consider creating custom exception handler and wrap any exception thrown by http client
-        Map<String, Object> fields = new HashMap<>();
-        fields.put("amount", postData.getAmount().toString());
-        fields.put("currency", postData.getCurrency());
-        fields.put("email", postData.getEmail());
-        fields.put("first_name", postData.getFirstName());
-        fields.put("last_name", postData.getLastName());
-        fields.put("tx_ref", postData.getTxRef());
+        Map<String, Object> fields = postData.getAsMap();
 
        Customization customization = postData.getCustomization();
         String callbackUrl = postData.getCallbackUrl();
@@ -152,6 +146,23 @@ public class Chapa {
      */
     public SubAccountResponseData createSubAccount(String jsonData) throws Throwable {
        return chapaClient.createSubAccount(jsonData, SECRETE_KEY);
+    }
+
+
+    public static class ChapaBuilder {
+        private IChapaClient client;
+        private String secretKey;
+
+        public ChapaBuilder client(IChapaClient client) {
+            if(client == null) throw new IllegalArgumentException("Client can't be null");
+            this.client = client;
+            return this;
+        }
+
+        public ChapaBuilder client(String secretKey) {
+            this.secretKey = secretKey;
+            return this;
+        }
     }
 
 }

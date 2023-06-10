@@ -88,7 +88,7 @@ public class ChapaClient implements IChapaClient {
     }
 
     @Override
-    public SubAccountResponseData createSubAccount(final String body, final String secretKey) throws ChapaException {
+    public SubAccountResponseData createSubAccount(final String secretKey, final String body) throws ChapaException {
         return this.createSubAccount(secretKey, new Gson().fromJson(body, Map.class));
     }
     

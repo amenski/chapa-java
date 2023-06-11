@@ -3,6 +3,7 @@ package it.aman.chapa.client;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -18,6 +19,7 @@ class RetrofitClientConfigurator {
             .connectTimeout(timeOutMillis, TimeUnit.MILLISECONDS)
             .readTimeout(timeOutMillis, TimeUnit.MILLISECONDS)
             .writeTimeout(timeOutMillis, TimeUnit.MILLISECONDS)
+            .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .build();
 
     static <T> T buildClient(final String baseUrl) {

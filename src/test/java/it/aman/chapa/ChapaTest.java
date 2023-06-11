@@ -3,7 +3,6 @@ package it.aman.chapa;
 import it.aman.chapa.client.IChapaClient;
 import it.aman.chapa.exception.ChapaException;
 import it.aman.chapa.model.*;
-import it.aman.chapa.utility.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -42,7 +42,7 @@ class ChapaTest {
                 .setFirstName("Abebe")
                 .setLastName("Bikila")
                 .setEmail("abebe@bikila.com")
-                .setTxRef(Util.generateToken())
+                .setTxRef(UUID.randomUUID().toString())
                 .setCallbackUrl("https://chapa.co")
                 .setReturnUrl("https://chapa.co")
                 .setSubAccountId("testSubAccountId")
@@ -69,7 +69,7 @@ class ChapaTest {
     }
 
     @Test
-    public void initializeTransaction_Fail() throws ChapaException {
+    public void initializeTransaction_Fail() {
         // verify
         Assertions.assertThrows(ChapaException.class, () -> chapa.initialize(new PostData()));
     }
@@ -83,7 +83,7 @@ class ChapaTest {
         when(chapaClient.initialize(anyString(), anyMap())).thenReturn(response);
 
         // verify
-        InitializeResponseData responseData = new Chapa(chapaClient, "").initialize(postData);
+        InitializeResponseData responseData = chapa.initialize(postData);
 
         Assertions.assertNotNull(responseData);
         Assertions.assertNotNull(responseData.getData().getCheckOutUrl());
@@ -98,7 +98,7 @@ class ChapaTest {
         when(chapaClient.initialize(anyString(), anyString())).thenReturn(response);
 
         // verify
-        InitializeResponseData responseData = new Chapa(chapaClient, "").initialize(postDataString);
+        InitializeResponseData responseData = chapa.initialize(postDataString);
 
         Assertions.assertNotNull(responseData);
         Assertions.assertNotNull(responseData.getData().getCheckOutUrl());
@@ -111,7 +111,7 @@ class ChapaTest {
         when(chapaClient.getBanks(anyString())).thenReturn(Collections.singletonList(new Bank()));
 
         // verify
-        List<Bank> responseData = new Chapa(chapaClient, "").getBanks();
+        List<Bank> responseData = chapa.getBanks();
 
         Assertions.assertNotNull(responseData);
         Assertions.assertTrue(responseData.size() == 1);

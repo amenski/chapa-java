@@ -142,9 +142,13 @@ public class Chapa {
             return this;
         }
 
-        public ChapaBuilder client(String secretKey) {
+        public ChapaBuilder secretKey(String secretKey) {
             this.secretKey = secretKey;
             return this;
+        }
+
+        public Chapa build() {
+            return new Chapa(this);
         }
     }
 }

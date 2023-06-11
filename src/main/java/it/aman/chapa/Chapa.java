@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static it.aman.chapa.utility.StringUtils.isBlank;
+import static it.aman.chapa.utility.Util.isAnyNull;
+import static it.aman.chapa.utility.Util.putIfNotNull;
 
 /**
  * The <code>Chapa</code> class is the interface to Chapa API to initialize
@@ -62,6 +64,9 @@ public class Chapa {
         putIfNotNull(fields, "customization[title]", Optional.ofNullable(postData.getCustomization()).map(Customization::getTitle).orElse(null));
         putIfNotNull(fields, "customization[description]", Optional.ofNullable(postData.getCustomization()).map(Customization::getDescription).orElse(null));
 
+        if(fields.isEmpty() || isAnyNull(fields, "amount", "currency", "tx_ref")) {
+            throw new ChapaException("Wrong or empty payload");
+        }
         return chapaClient.initialize(SECRETE_KEY, fields);
     }
 
@@ -142,10 +147,4 @@ public class Chapa {
             return this;
         }
     }
-
-    private void putIfNotNull(Map<String, Object> fields, String key, String value) {
-        if(isBlank(value)) return;
-        fields.put(key, value);
-    }
-
 }

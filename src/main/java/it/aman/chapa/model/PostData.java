@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import static it.aman.chapa.utility.Util.putIfNotNull;
+
 /**
  * The PostData class is an object representation of JSON form data
  * that will be posted to Chapa API.
@@ -120,15 +122,13 @@ public class PostData {
     }
 
     public Map<String, Object> getAsMap() {
-        return new HashMap<String, Object>(){
-            {
-                put("amount",     String.valueOf(getAmount()));
-                put("currency",   getCurrency());
-                put("email",      getEmail());
-                put("first_name", getFirstName());
-                put("last_name",  getLastName());
-                put("tx_ref",     getTxRef());
-            }
-        };
+        Map<String, Object> postData = new HashMap<>();
+        putIfNotNull(postData, "amount",     amount != null ? amount.toString() : null);
+        putIfNotNull(postData, "currency",   currency);
+        putIfNotNull(postData, "email",      email);
+        putIfNotNull(postData, "first_name", firstName);
+        putIfNotNull(postData, "last_name",  lastName);
+        putIfNotNull(postData, "tx_ref",     txRef);
+        return postData;
     }
 }

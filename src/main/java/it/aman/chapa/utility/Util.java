@@ -14,6 +14,8 @@ import com.google.gson.reflect.TypeToken;
 import it.aman.chapa.Chapa;
 import it.aman.chapa.model.*;
 
+import static it.aman.chapa.utility.StringUtils.isBlank;
+
 /**
  * The <code>Util</code> class serves as a helper class for the main {@link Chapa} class.
  */
@@ -116,5 +118,19 @@ public class Util {
     public static String generateToken() {
         final LocalDateTime now = LocalDateTime.now(CLOCK);
         return UUID.randomUUID().toString().substring(0, 8) + "_" + FORMATTER.format(now);
+    }
+
+    public static void putIfNotNull(Map<String, Object> fields, String key, String value) {
+        if(isBlank(value)) return;
+        fields.put(key, value);
+    }
+
+    public static boolean isAnyNull(Map<String, Object> fields, String... keys) {
+        if (keys == null) return false;
+        if (fields == null || fields.isEmpty()) return true;
+        for (String key : keys) {
+            if (!fields.containsKey(key) || fields.get(key) == null) return true;
+        }
+        return false;
     }
 }

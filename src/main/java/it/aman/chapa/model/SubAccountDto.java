@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName;
 import java.util.HashMap;
 import java.util.Map;
 
+import static it.aman.chapa.utility.Util.putIfNotNull;
+
 public class SubAccountDto {
 
     @SerializedName("business_name")
@@ -16,7 +18,7 @@ public class SubAccountDto {
     @SerializedName("account_number")
     private String accountNumber;
     @SerializedName("split_type")
-    private SplitType splitType;
+    private SplitTypeEnum splitType;
     @SerializedName("split_value")
     private Double splitValue;
 
@@ -56,11 +58,11 @@ public class SubAccountDto {
         return this;
     }
 
-    public SplitType getSplitType() {
+    public SplitTypeEnum getSplitType() {
         return splitType;
     }
 
-    public SubAccountDto setSplitType(SplitType splitType) {
+    public SubAccountDto setSplitType(SplitTypeEnum splitType) {
         this.splitType = splitType;
         return this;
     }
@@ -75,15 +77,13 @@ public class SubAccountDto {
     }
 
     public Map<String, Object> getAsMap() {
-        return new HashMap<String, Object>() {
-            {
-                put("business_name",  getBusinessName());
-                put("account_name",   getAccountName());
-                put("account_number", getAccountNumber());
-                put("bank_code",      getBankCode());
-                put("split_type",     getSplitType().name().toLowerCase());
-                put("split_value",    getSplitValue());
-            }
-        };
+        Map<String, Object> account = new HashMap<>();
+        putIfNotNull(account, "business_name",  businessName);
+        putIfNotNull(account, "account_name",   accountName);
+        putIfNotNull(account, "account_number", accountNumber);
+        putIfNotNull(account, "bank_code",      bankCode);
+        putIfNotNull(account, "split_type",     splitType.name().toLowerCase());
+        putIfNotNull(account, "split_value",    splitValue != null ? splitValue.toString() : null);
+        return account;
     }
 }

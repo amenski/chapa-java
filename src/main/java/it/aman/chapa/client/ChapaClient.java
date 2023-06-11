@@ -17,8 +17,12 @@ import static it.aman.chapa.utility.StringUtils.isNotBlank;
 
 public class ChapaClient implements IChapaClient {
 
-    private final String baseUrl;
+    private String baseUrl = "https://api.chapa.co/v1";
     private ChapaClientApi chapaClientApi;
+
+    public ChapaClient() {
+        //
+    }
 
     public ChapaClient(final String url) {
         this.baseUrl = url;
@@ -94,7 +98,7 @@ public class ChapaClient implements IChapaClient {
     
     private ChapaClientApi getClient() {
         if (chapaClientApi == null && isNotBlank(baseUrl)) {
-            chapaClientApi = RetrofitClientConfigurator.buildClient(ChapaClientApi.class, baseUrl);
+            chapaClientApi = RetrofitClientConfigurator.buildClient(baseUrl);
         }
         return chapaClientApi;
     }

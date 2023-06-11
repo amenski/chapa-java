@@ -1,6 +1,6 @@
 package it.aman.chapa.model;
 
-public enum SplitType {
+public enum SplitTypeEnum {
     PERCENTAGE,
     FLAT
 }

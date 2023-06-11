@@ -119,7 +119,7 @@ SubAccount subAccount = SubAccount.builder()
         .accountName("Abebe Bikila")
         .accountNumber("0123456789")
         .bankCode("96e41186-29ba-4e30-b013-2ca36d7e7025")
-        .splitType(SplitType.PERCENTAGE) // or SplitType.FLAT
+        .splitTypeEnum(SplitType.PERCENTAGE) // or SplitTypeEnum.FLAT
         .splitValue(0.2)
         .build();
 ```
@@ -177,7 +177,7 @@ public class ChapaExample {
               .accountName("Abebe Bikila")
               .accountNumber("0123456789")
               .bankCode("96e41186-29ba-4e30-b013-2ca36d7e7025")
-              .splitType(SplitType.PERCENTAGE) // or SplitType.FLAT
+              .splitTypeEnum(SplitType.PERCENTAGE) // or SplitTypeEnum.FLAT
               .splitValue(0.2)
               .build();
 

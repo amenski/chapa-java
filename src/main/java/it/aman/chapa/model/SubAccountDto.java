@@ -16,7 +16,7 @@ public class SubAccountDto {
     @SerializedName("account_number")
     private String accountNumber;
     @SerializedName("split_type")
-    private SplitType splitType;
+    private SplitTypeEnum splitType;
     @SerializedName("split_value")
     private Double splitValue;
 
@@ -56,11 +56,11 @@ public class SubAccountDto {
         return this;
     }
 
-    public SplitType getSplitType() {
+    public SplitTypeEnum getSplitType() {
         return splitType;
     }
 
-    public SubAccountDto setSplitType(SplitType splitType) {
+    public SubAccountDto setSplitType(SplitTypeEnum splitType) {
         this.splitType = splitType;
         return this;
     }

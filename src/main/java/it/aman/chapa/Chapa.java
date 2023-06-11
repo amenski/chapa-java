@@ -3,15 +3,23 @@ package it.aman.chapa;
 import it.aman.chapa.client.ChapaClient;
 import it.aman.chapa.client.IChapaClient;
 import it.aman.chapa.exception.ChapaException;
-import it.aman.chapa.model.*;
-import it.aman.chapa.utility.StringUtils;
+import it.aman.chapa.model.Bank;
+import it.aman.chapa.model.Customization;
+import it.aman.chapa.model.InitializeResponseData;
+import it.aman.chapa.model.PostData;
+import it.aman.chapa.model.SubAccountDto;
+import it.aman.chapa.model.SubAccountResponseData;
+import it.aman.chapa.model.VerifyResponseData;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static it.aman.chapa.utility.StringUtils.isBlank;
 
 /**
- * The <code>Chapa</code> class is responsible for making GET and POST request to Chapa API to initialize
- * a transaction, verify a transaction and create a sub account.
+ * The <code>Chapa</code> class is the interface to Chapa API to initialize
+ * a transaction, verify a transaction and create a sub-account for split payments.
  */
 public class Chapa {
 
@@ -22,13 +30,13 @@ public class Chapa {
      * @param secreteKey  A secrete key provided from Chapa.
      * @param chapaClient Implementation of {@link ChapaClient} interface.
      */
-    public Chapa(ChapaClient chapaClient, String secreteKey) {
+    public Chapa(IChapaClient chapaClient, String secreteKey) {
         this.chapaClient = chapaClient;
         this.SECRETE_KEY = secreteKey;
     }
 
     /**
-     * @param builder A builder with client and secretKey set
+     * @param builder A builder with client and secretKey
      */
     public Chapa(ChapaBuilder builder) {
         this.chapaClient = builder.client;
@@ -40,46 +48,19 @@ public class Chapa {
      * <p>This method is used to initialize payment in Chapa. It is an overloaded method
      * of {@link #initialize(String)}.</p><br>
      *
-     * @param postData Object of {@link PostData} instantiated with
-     *                 post fields.
-     * @return An object of {@link InitializeResponseData} containing
-     *          response data from Chapa API.
-     * @throws Throwable Throws an exception for failed request to Chapa API.
+     * @param postData Object of {@link PostData} instantiated with post fields.
+     * @return An object of {@link InitializeResponseData} containing response data from Chapa API.
+     * @throws ChapaException Throws an exception for failed request to Chapa API.
      */
-    public InitializeResponseData initialize(PostData postData) throws Throwable { // TODO: consider creating custom exception handler and wrap any exception thrown by http client
+    public InitializeResponseData initialize(PostData postData) throws ChapaException {
         Map<String, Object> fields = postData.getAsMap();
 
-       Customization customization = postData.getCustomization();
-        String callbackUrl = postData.getCallbackUrl();
-        String returnUrl = postData.getReturnUrl();
-        String subAccountId = postData.getSubAccountId();
-
-        if (StringUtils.isNotBlank(subAccountId)) {
-            fields.put("subaccount[id]", subAccountId);
-        }
-
-        if (StringUtils.isNotBlank(callbackUrl)) {
-            fields.put("callback_url", callbackUrl);
-        }
-
-        if (StringUtils.isNotBlank(returnUrl)) {
-            fields.put("return_url", returnUrl);
-        }
-
-        if (customization != null) {
-            // TODO: consider directly adding all values to fields map
-            if (StringUtils.isNotBlank(customization.getTitle())) {
-                fields.put("customization[title]", customization.getTitle());
-            }
-
-            if (StringUtils.isNotBlank(customization.getDescription())) {
-                fields.put("customization[description]", customization.getDescription());
-            }
-
-            if (StringUtils.isNotBlank(customization.getLogo())) {
-                fields.put("customization[logo]", customization.getLogo());
-            }
-        }
+        putIfNotNull(fields, "return_url", postData.getReturnUrl());
+        putIfNotNull(fields, "callback_url", postData.getCallbackUrl());
+        putIfNotNull(fields, "subaccount[id]", postData.getSubAccountId());
+        putIfNotNull(fields, "customization[logo]", Optional.ofNullable(postData.getCustomization()).map(Customization::getLogo).orElse(null));
+        putIfNotNull(fields, "customization[title]", Optional.ofNullable(postData.getCustomization()).map(Customization::getTitle).orElse(null));
+        putIfNotNull(fields, "customization[description]", Optional.ofNullable(postData.getCustomization()).map(Customization::getDescription).orElse(null));
 
         return chapaClient.initialize(SECRETE_KEY, fields);
     }
@@ -91,10 +72,10 @@ public class Chapa {
      * @param jsonData A json string containing post fields.
      * @return An object of {@link InitializeResponseData} containing
      *         response data from Chapa API.
-     * @throws Throwable Throws an exception for failed request to Chapa API.
+     * @throws ChapaException Throws an exception for failed request to Chapa API.
      */
 
-    public InitializeResponseData initialize(String jsonData) throws Throwable {
+    public InitializeResponseData initialize(String jsonData) throws ChapaException {
         return chapaClient.initialize(SECRETE_KEY, jsonData);
     }
 
@@ -104,10 +85,10 @@ public class Chapa {
      *                       identifies a transaction.
      * @return An object of {@link VerifyResponseData} containing
      *        response data from Chapa API.
-     * @throws Throwable Throws an exception for failed request to Chapa API.
+     * @throws ChapaException Throws an exception for failed request to Chapa API.
      */
-    public VerifyResponseData verify(String transactionRef) throws Throwable {
-        if (!StringUtils.isNotBlank(transactionRef)) {
+    public VerifyResponseData verify(String transactionRef) throws ChapaException {
+        if (isBlank(transactionRef)) {
             throw new ChapaException("Transaction reference can't be null or empty");
         }
         return chapaClient.verify(SECRETE_KEY, transactionRef);
@@ -115,9 +96,9 @@ public class Chapa {
 
     /**
      * @return A list of {@link Bank} containing all banks supported by Chapa.
-     * @throws Throwable Throws an exception for failed request to Chapa API.
+     * @throws ChapaException Throws an exception for failed request to Chapa API.
      */
-    public List<Bank> getBanks() throws Throwable {
+    public List<Bank> getBanks() throws ChapaException {
         return chapaClient.getBanks(SECRETE_KEY);
     }
 
@@ -125,13 +106,11 @@ public class Chapa {
      * <p>This method is used to create a sub account in Chapa. It is an overloaded method
      * of {@link #createSubAccount(String)}.</p><br>
      *
-     * @param subAccountDto An object of {@link SubAccountDto} containing
-     *                   sub account details.
-     * @return An object of {@link SubAccountResponseData} containing
-     *        response data from Chapa API.
-     * @throws Throwable Throws an exception for failed request to Chapa API.
+     * @param subAccountDto An object of {@link SubAccountDto} containing sub-account details.
+     * @return An object of {@link SubAccountResponseData} containing response data from Chapa API.
+     * @throws ChapaException Throws an exception for failed request to Chapa API.
      */
-    public SubAccountResponseData createSubAccount(SubAccountDto subAccountDto) throws Throwable {
+    public SubAccountResponseData createSubAccount(SubAccountDto subAccountDto) throws ChapaException {
         return chapaClient.createSubAccount(SECRETE_KEY, subAccountDto.getAsMap());
     }
 
@@ -140,8 +119,7 @@ public class Chapa {
      * of {@link #createSubAccount(SubAccountDto)}.</p><br>
      *
      * @param jsonData A json string containing sub account details.
-     * @return An object of {@link SubAccountResponseData} containing
-     *       response data from Chapa API.
+     * @return An object of {@link SubAccountResponseData} containing response data from Chapa API.
      * @throws Throwable Throws an exception for failed request to Chapa API.
      */
     public SubAccountResponseData createSubAccount(String jsonData) throws Throwable {
@@ -163,6 +141,11 @@ public class Chapa {
             this.secretKey = secretKey;
             return this;
         }
+    }
+
+    private void putIfNotNull(Map<String, Object> fields, String key, String value) {
+        if(isBlank(value)) return;
+        fields.put(key, value);
     }
 
 }

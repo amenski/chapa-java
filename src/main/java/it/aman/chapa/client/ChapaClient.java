@@ -98,7 +98,7 @@ public class ChapaClient implements IChapaClient {
     
     private ChapaClientApi getClient() {
         if (chapaClientApi == null && isNotBlank(baseUrl)) {
-            chapaClientApi = RetrofitClientConfigurator.buildClient(ChapaClientApi.class, baseUrl);
+            chapaClientApi = RetrofitClientConfigurator.buildClient(baseUrl);
         }
         return chapaClientApi;
     }

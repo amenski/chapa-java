@@ -122,7 +122,7 @@ public class PostData {
     public Map<String, Object> getAsMap() {
         return new HashMap<String, Object>(){
             {
-                put("amount",     getAmount().toString());
+                put("amount",     String.valueOf(getAmount()));
                 put("currency",   getCurrency());
                 put("email",      getEmail());
                 put("first_name", getFirstName());

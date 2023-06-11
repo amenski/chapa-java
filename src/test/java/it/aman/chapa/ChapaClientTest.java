@@ -1,12 +1,11 @@
 package it.aman.chapa;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import it.aman.chapa.client.ChapaClient;
 import it.aman.chapa.client.ChapaClientApi;
 import it.aman.chapa.exception.ChapaException;
-import it.aman.chapa.model.Bank;
-import it.aman.chapa.model.InitializeResponseData;
-import it.aman.chapa.model.SubAccountResponseData;
-import it.aman.chapa.model.VerifyResponseData;
+import it.aman.chapa.model.*;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.Assertions;
@@ -33,7 +32,7 @@ public class ChapaClientTest {
     private final String baseUrl = "http://baseUrl";
     private final String secretKey = "secretKey";
 
-    @Mock private Call<String> call;
+    @Mock private Call call;
     @Mock private ChapaClientApi chapaClientApi;
     @InjectMocks private ChapaClient client;
 
@@ -148,33 +147,33 @@ public class ChapaClientTest {
     @Test
     public void getBanks_Success() throws Exception {
         when(chapaClientApi.banks(anyString())).thenReturn(call);
-        when(call.execute()).thenReturn(Response.success("{\n" +
-                "\"message\": \"Banks retrieved\",\n" +
-                "\"data\": [\n" +
+        when(call.execute()).thenReturn(Response.success(new Gson().fromJson(
                 "{\n" +
-                "\"id\": \"fe087651-4910-43af-b666-bbd393d8e81f\",\n" +
-                "\"name\": \"Berhan  Bank\",\n" +
-                "\"country_id\": 25,\n" +
-                "\"created_at\": \"2022-08-17T23:02:44.000000Z\",\n" +
-                "\"updated_at\": \"2022-08-17T23:02:44.000000Z\"\n" +
-                "},\n" +
-                "{\n" +
-                "\"id\": \"f6ce5910-2a61-4b67-aec0-98f891ff938d\",\n" +
-                "\"name\": \"Bunna Bank\",\n" +
-                "\"country_id\": 10,\n" +
-                "\"created_at\": \"2022-03-12T00:53:57.000000Z\",\n" +
-                "\"updated_at\": \"2022-03-12T00:53:57.000000Z\"\n" +
-                "}\n" +
-                "]\n" +
-                "}\n" +
-                "\n"));
+                "    \"data\": [\n" +
+                "        {\n" +
+                "            \"acct_length\": 16,\n" +
+                "            \"active\": 1,\n" +
+                "            \"country_id\": 1,\n" +
+                "            \"created_at\": \"2023-01-24T04:28:30.000000Z\",\n" +
+                "            \"currency\": \"ETB\",\n" +
+                "            \"id\": \"971bd28c-ff80-420b-a0db-0a1a4be6ee8b\",\n" +
+                "            \"is_mobilemoney\": null,\n" +
+                "            \"is_rtgs\": null,\n" +
+                "            \"name\": \"Abay Bank\",\n" +
+                "            \"swift\": \"ABAYETAA\",\n" +
+                "            \"updated_at\": \"2023-01-24T04:28:30.000000Z\"\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"message\": \"Banks retrieved\"\n" +
+                "}", new TypeToken<ResponseBanks>(){}.getType())));
 
         //assert
         List<Bank> response = client.getBanks(secretKey);
         verify(chapaClientApi).banks(anyString());
 
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(2, response.size());
+        Assertions.assertEquals(1, response.size());
+        Assertions.assertEquals(16, response.get(0).getAccountLength());
     }
 
     @Test

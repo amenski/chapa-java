@@ -1,23 +1,23 @@
 package it.aman.chapa.client;
 
-import com.google.gson.Gson;
 import it.aman.chapa.exception.ChapaException;
-import it.aman.chapa.model.Bank;
-import it.aman.chapa.model.InitializeResponseData;
-import it.aman.chapa.model.SubAccountResponseData;
-import it.aman.chapa.model.VerifyResponseData;
+import it.aman.chapa.model.*;
 import it.aman.chapa.utility.Util;
 import retrofit2.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static it.aman.chapa.utility.StringUtils.isNotBlank;
+import static it.aman.chapa.utility.Util.jsonToMap;
 
 public class ChapaClient implements IChapaClient {
 
-    private String baseUrl = "https://api.chapa.co/v1";
+    private String baseUrl = "https://api.chapa.co/v1/";
+//    private String baseUrl = "http://locahost:8080/";
     private ChapaClientApi chapaClientApi;
 
     public ChapaClient() {
@@ -45,7 +45,7 @@ public class ChapaClient implements IChapaClient {
 
     @Override
     public InitializeResponseData initialize(final String secretKey, final String body) throws ChapaException {
-        return this.initialize(secretKey, new Gson().fromJson(body, Map.class));
+        return this.initialize(secretKey, jsonToMap(body));
     }
 
     @Override
@@ -66,11 +66,11 @@ public class ChapaClient implements IChapaClient {
     @Override
     public List<Bank> getBanks(final String secretKey) throws ChapaException {
         try {
-            Response<String> response = getClient().banks("Bearer " + secretKey).execute();
+            Response<ResponseBanks> response = getClient().banks("Bearer " + secretKey).execute();
             if (!response.isSuccessful()) {
                 throw new ChapaException("Unable to get bank details.");
             }
-            return Util.extractBanks(response.body());
+            return (response.body() != null && response.body().getData() != null) ? response.body().getData() : new ArrayList<>();
         } catch (IOException e) {
             throw new RuntimeException("Unable to get bank details.");
         }
@@ -93,7 +93,7 @@ public class ChapaClient implements IChapaClient {
 
     @Override
     public SubAccountResponseData createSubAccount(final String secretKey, final String body) throws ChapaException {
-        return this.createSubAccount(secretKey, new Gson().fromJson(body, Map.class));
+        return this.createSubAccount(secretKey, jsonToMap(body));
     }
     
     private ChapaClientApi getClient() {

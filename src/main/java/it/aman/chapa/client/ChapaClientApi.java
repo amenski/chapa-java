@@ -2,6 +2,8 @@ package it.aman.chapa.client;
 
 import it.aman.chapa.model.Bank;
 import it.aman.chapa.model.ResponseBanks;
+import it.aman.chapa.model.ResponseData;
+import it.aman.chapa.model.SubAccountResponseData;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -24,5 +26,5 @@ public interface ChapaClientApi {
     Call<ResponseBanks> banks(@Header("Authorization") String authorizationHeader);
 
     @POST("subaccount")
-    Call<String> createSubAccount(@Header("Authorization") String authorizationHeader, @Body Map<String, Object> body);
+    Call<SubAccountResponseData> createSubAccount(@Header("Authorization") String authorizationHeader, @Body Map<String, Object> body);
 }

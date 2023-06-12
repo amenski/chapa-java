@@ -1,13 +1,15 @@
 package it.aman.chapa.client;
 
+import com.google.gson.Gson;
 import it.aman.chapa.exception.ChapaException;
-import it.aman.chapa.model.*;
+import it.aman.chapa.model.InitializeResponseData;
+import it.aman.chapa.model.ResponseBanks;
+import it.aman.chapa.model.SubAccountResponseData;
+import it.aman.chapa.model.VerifyResponseData;
 import it.aman.chapa.utility.Util;
 import retrofit2.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -64,13 +66,22 @@ public class ChapaClient implements IChapaClient {
     }
 
     @Override
-    public List<Bank> getBanks(final String secretKey) throws ChapaException {
+    public ResponseBanks getBanks(final String secretKey) throws ChapaException {
         try {
             Response<ResponseBanks> response = getClient().banks("Bearer " + secretKey).execute();
             if (!response.isSuccessful()) {
-                throw new ChapaException("Unable to get bank details.");
+                String message = Optional.ofNullable(response.errorBody()).map(t -> {
+                    try {
+                        return t.string();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).orElse("Unable to create sub account.");
+
+                ResponseBanks banks= new Gson().fromJson(message, ResponseBanks.class);
+                return banks;
             }
-            return (response.body() != null && response.body().getData() != null) ? response.body().getData() : new ArrayList<>();
+            return response.body() != null? response.body() : null;
         } catch (IOException e) {
             throw new RuntimeException("Unable to get bank details.");
         }
@@ -79,13 +90,19 @@ public class ChapaClient implements IChapaClient {
     @Override
     public SubAccountResponseData createSubAccount(final String secretKey, Map<String, Object> fields) throws ChapaException {
         try {
-            Response<String> response = getClient().createSubAccount("Bearer " + secretKey, fields).execute();
+            Response<SubAccountResponseData> response = getClient().createSubAccount("Bearer " + secretKey, fields).execute();
             if (!response.isSuccessful()) {
-                throw new ChapaException("Unable to create sub account.");
+                String message = Optional.ofNullable(response.errorBody()).map(t -> {
+                    try {
+                        return t.string();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).orElse("Unable to create sub account.");
+
+                return Util.jsonToSubAccountResponseData(message);
             }
-            return Util.jsonToSubAccountResponseData(response.body())
-                    .setRawJson(response.body())
-                    .setStatusCode(response.code());
+            return response.body();
         } catch (IOException e) {
             throw new RuntimeException("Unable to create sub account.");
         }

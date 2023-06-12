@@ -36,15 +36,16 @@ public class ChapaExample {
                 .setBusinessName("Abebe Suq")
                 .setAccountName("Abebe Bikila")
                 .setAccountNumber("0123456789")
-                .setBankCode("001")
+                .setBankCode("853d0598-9c01-41ab-ac99-48eab4da1513")
                 .setSplitType(SplitTypeEnum.PERCENTAGE)
                 .setSplitValue(0.2);
 
         // list of banks
-        List<Bank> banks = chapa.getBanks();
-//        banks.forEach(bank -> System.out.println("Bank name: " + bank.getName() + " Bank Code: " + bank.getId()));
-//        // create subaccount
-//        System.out.println("Create SubAccount response: " + chapa.createSubAccount(subAccountDto).asString());
+//        ResponseBanks banks = chapa.getBanks();
+//        System.out.println("Bank list: " + banks);
+//         create subaccount
+        SubAccountResponseData res = chapa.createSubAccount(subAccountDto);
+        System.out.println("Create SubAccount response: " + res);
 //        // initialize payment
 //        System.out.println("Initialize response: " + chapa.initialize(postData).asString());
 //        // verify payment

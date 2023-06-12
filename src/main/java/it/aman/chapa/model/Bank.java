@@ -128,4 +128,17 @@ public class Bank {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Bank{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", countryId=").append(countryId);
+        sb.append(", active=").append(active);
+        sb.append(", accountLength=").append(accountLength);
+        sb.append(", swift='").append(swift).append('\'');
+        sb.append(", currency='").append(currency).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

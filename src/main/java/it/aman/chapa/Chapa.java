@@ -3,13 +3,7 @@ package it.aman.chapa;
 import it.aman.chapa.client.ChapaClient;
 import it.aman.chapa.client.IChapaClient;
 import it.aman.chapa.exception.ChapaException;
-import it.aman.chapa.model.Bank;
-import it.aman.chapa.model.Customization;
-import it.aman.chapa.model.InitializeResponseData;
-import it.aman.chapa.model.PostData;
-import it.aman.chapa.model.SubAccountDto;
-import it.aman.chapa.model.SubAccountResponseData;
-import it.aman.chapa.model.VerifyResponseData;
+import it.aman.chapa.model.*;
 
 import java.util.List;
 import java.util.Map;
@@ -103,7 +97,7 @@ public class Chapa {
      * @return A list of {@link Bank} containing all banks supported by Chapa.
      * @throws ChapaException Throws an exception for failed request to Chapa API.
      */
-    public List<Bank> getBanks() throws ChapaException {
+    public ResponseBanks getBanks() throws ChapaException {
         return chapaClient.getBanks(SECRETE_KEY);
     }
 

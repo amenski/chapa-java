@@ -1,12 +1,8 @@
 package it.aman.chapa.client;
 
 import it.aman.chapa.exception.ChapaException;
-import it.aman.chapa.model.Bank;
-import it.aman.chapa.model.InitializeResponseData;
-import it.aman.chapa.model.SubAccountResponseData;
-import it.aman.chapa.model.VerifyResponseData;
+import it.aman.chapa.model.*;
 
-import java.util.List;
 import java.util.Map;
 
 public interface IChapaClient {
@@ -17,7 +13,7 @@ public interface IChapaClient {
 
     VerifyResponseData verify(String secretKey, String transactionReference) throws ChapaException;
 
-    List<Bank> getBanks(String secretKey) throws ChapaException;
+    ResponseBanks getBanks(String secretKey) throws ChapaException;
 
     SubAccountResponseData createSubAccount(String secretKey, Map<String, Object> fields) throws ChapaException;
 

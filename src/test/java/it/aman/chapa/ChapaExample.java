@@ -42,7 +42,7 @@ public class ChapaExample {
         // list of banks
         ResponseBanks banks = chapa.getBanks();
         if ((banks == null || banks.getData() == null)) {
-            System.out.println("Create SubAccount response: " + banks);
+            System.out.println("Bank response: " + banks);
         } else {
             banks.getData().forEach(System.out::println);
         }

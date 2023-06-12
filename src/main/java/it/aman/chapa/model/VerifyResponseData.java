@@ -214,5 +214,33 @@ public class VerifyResponseData extends ResponseData {
           this.updatedAt = updatedAt;
           return this;
       }
+
+      @Override
+      public String toString() {
+          final StringBuilder sb = new StringBuilder("Data{");
+          sb.append("firstName='").append(firstName).append('\'');
+          sb.append(", currency='").append(currency).append('\'');
+          sb.append(", amount=").append(amount);
+          sb.append(", charge=").append(charge);
+          sb.append(", mode='").append(mode).append('\'');
+          sb.append(", method='").append(method).append('\'');
+          sb.append(", type='").append(type).append('\'');
+          sb.append(", status='").append(status).append('\'');
+          sb.append(", reference='").append(reference).append('\'');
+          sb.append(", txRef='").append(txRef).append('\'');
+          sb.append('}');
+          return sb.toString();
+      }
   }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("VerifyResponseData{");
+        sb.append("status=").append(this.getStatus());
+        sb.append(", statusCode=").append(this.getStatusCode());
+        sb.append(", message=").append(this.getMessage());
+        sb.append(", data=").append(data);
+        sb.append('}');
+        return sb.toString();
+    }
 }

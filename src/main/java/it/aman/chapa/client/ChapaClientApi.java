@@ -17,7 +17,7 @@ public interface ChapaClientApi {
     Call<InitializeResponseData> initialize(@Header("Authorization") String authorizationHeader, @Body Map<String, Object> body);
 
     @GET("transaction/verify/{tx_ref}")
-    Call<String> verify(@Header("Authorization") String authorizationHeader, @Path("tx_ref") String transactionReference);
+    Call<VerifyResponseData> verify(@Header("Authorization") String authorizationHeader, @Path("tx_ref") String transactionReference);
 
     @GET("banks")
     Call<ResponseBanks> banks(@Header("Authorization") String authorizationHeader);

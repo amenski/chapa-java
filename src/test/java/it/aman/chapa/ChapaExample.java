@@ -47,8 +47,8 @@ public class ChapaExample {
 //        SubAccountResponseData res = chapa.createSubAccount(subAccountDto);
 //        System.out.println("Create SubAccount response: " + res);
 //        // initialize payment
-//        System.out.println("Initialize response: " + chapa.initialize(postData));
+        System.out.println("Initialize response: " + chapa.initialize(postData));
 //        // verify payment
-//        System.out.println("Verify response: " + chapa.verify(postData.getTxRef()).asString());
+        System.out.println("Verify response: " + chapa.verify(postData.getTxRef()));
     }
 }

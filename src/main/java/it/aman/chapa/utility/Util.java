@@ -2,17 +2,10 @@ package it.aman.chapa.utility;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import it.aman.chapa.Chapa;
-import it.aman.chapa.model.Bank;
-import it.aman.chapa.model.InitializeResponseData;
-import it.aman.chapa.model.SubAccountResponseData;
-import it.aman.chapa.model.VerifyResponseData;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -37,42 +30,6 @@ public class Util {
     }
 
     /**
-     * @param jsonData a json string to be mapped to an {@link InitializeResponseData} object.
-     * @return An {@link InitializeResponseData} object which contains response fields of the provided
-     * JSON data.
-     */
-    public static InitializeResponseData jsonToInitializeResponseData(String jsonData) {
-        return JSON_MAPPER.fromJson(jsonData, InitializeResponseData.class);
-    }
-
-    /**
-     * @param jsonData a json string to be mapped to a {@link VerifyResponseData} object.
-     * @return A {@link VerifyResponseData} object which contains response fields of the provided
-     * JSON data.
-     */
-    public static VerifyResponseData jsonToVerifyResponseData(String jsonData) {
-        return JSON_MAPPER.fromJson(jsonData, VerifyResponseData.class);
-    }
-
-    /**
-     * @param jsonData a json string to be mapped to a {@link SubAccountResponseData} object.
-     * @return A {@link SubAccountResponseData} object which contains response fields of the provided
-     * JSON data.
-     */
-    public static SubAccountResponseData jsonToSubAccountResponseData(String jsonData) {
-        return JSON_MAPPER.fromJson(jsonData, SubAccountResponseData.class);
-    }
-
-    /**
-     * @param jsonData a json string to be mapped to a list of {@link Bank} objects.
-     * @return A list of {@link Bank} objects each containing details of a bank.
-     */
-    public static List<Bank> extractBanks(String jsonData) {
-        JsonObject jsonObject = JSON_MAPPER.fromJson(jsonData, JsonObject.class);
-        return JSON_MAPPER.fromJson(jsonObject.get("data"), new TypeToken<List<Bank>>() {}.getType());
-    }
-
-    /**
      * @return A random string followed by the current date/time value (dd-MM-yy-HH-mm-ss).
      */
     public static String generateTransactionReferenceToken() {
@@ -86,8 +43,8 @@ public class Util {
     }
 
     public static boolean isAnyNull(Map<String, Object> fields, String... keys) {
-        if (keys == null) return false;
-        if (fields == null || fields.isEmpty()) return true;
+        if (keys == null) return true;
+        if (fields == null || fields.isEmpty()) return false;
         for (String key : keys) {
             if (!fields.containsKey(key) || fields.get(key) == null) return true;
         }

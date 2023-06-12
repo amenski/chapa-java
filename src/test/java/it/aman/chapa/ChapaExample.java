@@ -5,7 +5,6 @@ import it.aman.chapa.exception.ChapaException;
 import it.aman.chapa.model.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 
 public class ChapaExample {
@@ -13,7 +12,7 @@ public class ChapaExample {
     public static void main(String[] args) throws ChapaException {
         Chapa chapa = new Chapa.ChapaBuilder()
                 .client(new ChapaClient())
-                .secretKey("CHASECK_TEST-gxAFoWyYjj1eLPy1qlfwezhxPyZc7bKr")
+                .secretKey("CHASECK_TEST-....")
                 .build();
 
         Customization customization = new Customization()
@@ -41,14 +40,17 @@ public class ChapaExample {
                 .setSplitValue(0.2);
 
         // list of banks
-//        ResponseBanks banks = chapa.getBanks();
-//        System.out.println("Bank list: " + banks);
-//         create subaccount
-//        SubAccountResponseData res = chapa.createSubAccount(subAccountDto);
-//        System.out.println("Create SubAccount response: " + res);
-//        // initialize payment
+        ResponseBanks banks = chapa.getBanks();
+        if ((banks == null || banks.getData() == null)) {
+            System.out.println("Create SubAccount response: " + banks);
+        } else {
+            banks.getData().forEach(System.out::println);
+        }
+        // create subaccount
+        System.out.println("Create SubAccount response: " + chapa.createSubAccount(subAccountDto));
+        // initialize payment
         System.out.println("Initialize response: " + chapa.initialize(postData));
-//        // verify payment
+        // verify payment
         System.out.println("Verify response: " + chapa.verify(postData.getTxRef()));
     }
 }

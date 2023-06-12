@@ -6,8 +6,6 @@
  `-----' `--' `--'  `--`--' |  |-'   `--`--'          `-----'   `--`--'    `--'     `--`--'
 ```
 
-[![BUILD](https://github.com/yaphet17/chapa-java/actions/workflows/maven.yml/badge.svg)](https://github.com/yaphet17/chapa-java/actions/workflows/maven.yml/) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/yaphet17/chapa-java.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/yaphet17/chapa-java/context:java) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
-
 Unofficial Java package for Chapa Payment Gateway.
 
 ## Features
@@ -44,22 +42,22 @@ Or add the below gradle dependency to your `build.gradle` file.
 
 ## Usage
 
-> **Note** : This doc might not fully cover chapa-api. Please refer to the chapa developer doc and let me know (or create a PR) if you find anything. Thanks.
+> **Note** : This doc might not fully cover chapa-api. Please refer to the chapa developer doc for more. And contributions are welcome too. Thanks.
 
 
 Instantiate a `Chapa` class.
 ```java       
-Chapa chapa = new Chapa.ChapaBuilder()
-        .client(null)
-        .secretKey("secret-key")
-        .build()
-```
-Or if you want to use your own implementation of `IChapaClient` interface.
-```java
 public class MyCustomChapaClient implements IChapaClient {
   ...
 }
 
+Chapa chapa = new Chapa.ChapaBuilder()
+      .client(new MyCustomChapaClient())
+      .secretKey("secret-key")
+      .build();
+```
+Or if you want to use your own implementation of `IChapaClient` interface.
+```java
 Chapa chapa = new Chapa(new MyCustomChapaClient(), "secrete-key");
 ```
 Note: `MyCustomChapaClient` must implement `IChapaClient` interface.
@@ -154,57 +152,62 @@ Create subaccount
 ```
 ## Example
 ```java
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+package it.aman.chapa;
 
-import io.github.yaphet17.chapa.Chapa;
-import io.github.yaphet17.chapa.PostData;
-import io.github.yaphet17.chapa.SubAccount;
-import io.github.yaphet17.chapa.SplitType;
-import io.github.yaphet17.chapa.Bank;
+import it.aman.chapa.client.ChapaClient;
+import it.aman.chapa.exception.ChapaException;
+import it.aman.chapa.model.*;
+
+import java.math.BigDecimal;
+import java.util.UUID;
 
 public class ChapaExample {
-    public static void main(String[] args) {
-      Chapa chapa = new Chapa("your-secrete-key");
-    
-      Map<String, String> customizations = new HashMap<>();
-      customizations.put("customization[title]", "E-commerce");
-      customizations.put("customization[description]", "It is time to pay");
-      customizations.put("customization[logo]", "https://mylogo.com/log.png");
-      PostData postData = PostData.builder()
-              .amount(new BigDecimal("100"))
-              .currency("ETB")
-              .firstName("Abebe")
-              .lastName("Bikila")
-              .email("abebe@bikila.com")
-              .txRef(Util.generateToken())
-              .callbackUrl("https://chapa.co")
-              .subAccountId("ACCT_xxxxxxxxx")
-              .customizations(customizations)
-              .build();
-      
-      SubAccount subAccount = SubAccount.builder()
-              .businessName("Abebe Suq")
-              .accountName("Abebe Bikila")
-              .accountNumber("0123456789")
-              .bankCode("96e41186-29ba-4e30-b013-2ca36d7e7025")
-              .splitTypeEnum(SplitType.PERCENTAGE) // or SplitTypeEnum.FLAT
-              .splitValue(0.2)
-              .build();
 
-      // list of banks
-      List<Bank> banks = chapa.banks();
-      banks.forEach(bank -> System.out.println("Bank name: " + bank.getName() + " Bank Code: " + bank.getId()));
-      // create subaccount
-      System.out.println("Create SubAccount response: " + chapa.createSubAccount(subAccount).asString());
-      // initialize payment
-      System.out.println("Initialize response: " + chapa.initialize(postData).asString());
-      // verify payment
-      System.out.println("Verify response: " + chapa.verify(postData.getTxRef()).asString());
-      }
- }
+  public static void main(String[] args) throws ChapaException {
+    Chapa chapa = new Chapa.ChapaBuilder()
+            .client(new ChapaClient())
+            .secretKey("CHASECK_TEST-...")
+            .build();
+
+    Customization customization = new Customization()
+            .setTitle("E-commerce")
+            .setDescription("It is time to pay")
+            .setLogo("https://mylogo.com/log.png");
+    PostData postData = new PostData()
+            .setAmount(new BigDecimal("100"))
+            .setCurrency("ETB")
+            .setFirstName("Abebe")
+            .setLastName("Bikila")
+            .setEmail("abebe@bikila.com")
+            .setTxRef(UUID.randomUUID().toString())
+            .setCallbackUrl("https://chapa.co")
+            .setReturnUrl("https://chapa.co")
+            .setSubAccountId("testSubAccountId")
+            .setCustomization(customization);
+
+    SubAccountDto subAccountDto = new SubAccountDto()
+            .setBusinessName("Abebe Suq")
+            .setAccountName("Abebe Bikila")
+            .setAccountNumber("0123456789")
+            .setBankCode("853d0598-9c01-41ab-ac99-48eab4da1513")
+            .setSplitType(SplitTypeEnum.PERCENTAGE)
+            .setSplitValue(0.2);
+
+    // list of banks
+    ResponseBanks banks = chapa.getBanks();
+    if ((banks == null || banks.getData() == null)) {
+      System.out.println("Create SubAccount response: " + banks);
+    } else {
+      banks.getData().forEach(System.out::println);
+    }
+    // create subaccount
+    System.out.println("Create SubAccount response: " + chapa.createSubAccount(subAccountDto));
+    // initialize payment
+    System.out.println("Initialize response: " + chapa.initialize(postData));
+    // verify payment
+    System.out.println("Verify response: " + chapa.verify(postData.getTxRef()));
+  }
+}
 ```
 ## Contribution
 If you find any bug or have any suggestion, please feel free to open an issue or pull request.

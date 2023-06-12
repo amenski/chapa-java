@@ -33,13 +33,19 @@ public class ChapaClient implements IChapaClient {
     @Override
     public InitializeResponseData initialize(final String secretKey, Map<String, Object> fields) throws ChapaException {
         try {
-            Response<String> response = getClient().initialize("Bearer " + secretKey, fields).execute();
+            Response<InitializeResponseData> response = getClient().initialize("Bearer " + secretKey, fields).execute();
             if (!response.isSuccessful()) {
-                throw new ChapaException("Unable to Initialize transaction.");
+                String message = Optional.ofNullable(response.errorBody()).map(t -> {
+                    try {
+                        return t.string();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).orElse("Unable to Initialize transaction.");
+
+                return new Gson().fromJson(message, InitializeResponseData.class);
             }
-            return Util.jsonToInitializeResponseData(response.body())
-                    .setStatusCode(response.code())
-                    .setRawJson(response.body());
+            return response.body();
         } catch (IOException e) {
             throw new RuntimeException("Unable to Initialize transaction.");
         }
@@ -66,7 +72,7 @@ public class ChapaClient implements IChapaClient {
     }
 
     @Override
-    public ResponseBanks getBanks(final String secretKey) throws ChapaException {
+    public ResponseBanks getBanks(final String secretKey) {
         try {
             Response<ResponseBanks> response = getClient().banks("Bearer " + secretKey).execute();
             if (!response.isSuccessful()) {
@@ -78,8 +84,7 @@ public class ChapaClient implements IChapaClient {
                     }
                 }).orElse("Unable to create sub account.");
 
-                ResponseBanks banks= new Gson().fromJson(message, ResponseBanks.class);
-                return banks;
+                return new Gson().fromJson(message, ResponseBanks.class);
             }
             return response.body() != null? response.body() : null;
         } catch (IOException e) {

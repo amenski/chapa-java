@@ -18,7 +18,7 @@ public class ResponseBanks extends ResponseData {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SubAccountResponseData{");
+        final StringBuilder sb = new StringBuilder("ResponseBanks{");
         sb.append("status=").append(this.getStatus());
         sb.append(", statusCode=").append(this.getStatusCode());
         sb.append(", message=").append(this.getMessage());

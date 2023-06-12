@@ -44,10 +44,10 @@ public class ChapaExample {
 //        ResponseBanks banks = chapa.getBanks();
 //        System.out.println("Bank list: " + banks);
 //         create subaccount
-        SubAccountResponseData res = chapa.createSubAccount(subAccountDto);
-        System.out.println("Create SubAccount response: " + res);
+//        SubAccountResponseData res = chapa.createSubAccount(subAccountDto);
+//        System.out.println("Create SubAccount response: " + res);
 //        // initialize payment
-//        System.out.println("Initialize response: " + chapa.initialize(postData).asString());
+//        System.out.println("Initialize response: " + chapa.initialize(postData));
 //        // verify payment
 //        System.out.println("Verify response: " + chapa.verify(postData.getTxRef()).asString());
     }

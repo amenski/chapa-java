@@ -51,5 +51,24 @@ public class InitializeResponseData extends ResponseData {
               this.checkOutUrl = checkOutUrl;
               return this;
          }
+
+         @Override
+         public String toString() {
+              final StringBuilder sb = new StringBuilder("Data{");
+              sb.append("checkOutUrl='").append(checkOutUrl).append('\'');
+              sb.append('}');
+              return sb.toString();
+         }
     }
+
+     @Override
+     public String toString() {
+          final StringBuilder sb = new StringBuilder("InitializeResponseData{");
+          sb.append("status=").append(this.getStatus());
+          sb.append(", statusCode=").append(this.getStatusCode());
+          sb.append(", message=").append(this.getMessage());
+          sb.append(", data=").append(data);
+          sb.append('}');
+          return sb.toString();
+     }
 }

@@ -8,9 +8,12 @@ import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
-import java.util.List;
 import java.util.Map;
 
+
+/**
+ * Chapa default retrofit client
+ */
 public interface ChapaClientApi {
 
     @POST("transaction/initialize")

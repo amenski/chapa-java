@@ -122,7 +122,7 @@ public class Chapa {
      * @throws Throwable Throws an exception for failed request to Chapa API.
      */
     public SubAccountResponseData createSubAccount(String jsonData) throws Throwable {
-       return chapaClient.createSubAccount(jsonData, SECRETE_KEY);
+       return chapaClient.createSubAccount(SECRETE_KEY, jsonData);
     }
 
 

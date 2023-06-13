@@ -16,10 +16,12 @@ import java.util.Optional;
 import static it.aman.chapa.utility.StringUtils.isNotBlank;
 import static it.aman.chapa.utility.Util.jsonToMap;
 
+/**
+ * Chapa default client implementation
+ */
 public class ChapaClient implements IChapaClient {
 
     private String baseUrl = "https://api.chapa.co/v1/";
-//    private String baseUrl = "http://locahost:8080/";
     private ChapaClientApi chapaClientApi;
 
     public ChapaClient() {

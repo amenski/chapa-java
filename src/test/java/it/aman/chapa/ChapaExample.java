@@ -11,7 +11,7 @@ public class ChapaExample {
 
     public static void main(String[] args) throws ChapaException {
         Chapa chapa = new Chapa.ChapaBuilder()
-                .client(new ChapaClient())
+                .client(new ChapaClient("url-goes-here"))
                 .secretKey("CHASECK_TEST-....")
                 .build();
 

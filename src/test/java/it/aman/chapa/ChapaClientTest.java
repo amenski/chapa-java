@@ -1,11 +1,13 @@
 package it.aman.chapa;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import it.aman.chapa.client.ChapaClient;
 import it.aman.chapa.client.ChapaClientApi;
+import it.aman.chapa.client.provider.DefaultRetrofitBuilderProvider;
+import it.aman.chapa.client.provider.RetrofitBuilderProvider;
 import it.aman.chapa.exception.ChapaException;
-import it.aman.chapa.model.*;
+import it.aman.chapa.model.InitializeResponseData;
+import it.aman.chapa.model.SubAccountResponseData;
+import it.aman.chapa.model.VerifyResponseData;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.Assertions;
@@ -20,14 +22,14 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import java.util.HashMap;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ChapaClientTest {
+class ChapaClientTest {
 
     private final String baseUrl = "http://baseUrl";
     private final String secretKey = "secretKey";
@@ -42,22 +44,23 @@ public class ChapaClientTest {
     }
 
     @Test
-    public void initialize_failOnNetworkCall() {
+    void initialize_failOnNetworkCall() {
         Assertions.assertThrows(RuntimeException.class, () -> new ChapaClient(baseUrl).initialize(secretKey, new HashMap<>()));
     }
 
     @Test
-    public void initialize_failOnFailedResponse() throws Exception {
+    void initialize_failOnFailedResponse() throws Exception {
         //given
         when(chapaClientApi.initialize(anyString(), anyMap())).thenReturn(call);
         when(call.execute()).thenReturn(Response.error(500, ResponseBody.create(MediaType.parse("application/json"), "")));
 
         //assert
-        Assertions.assertThrows(ChapaException.class, () -> client.initialize(secretKey, new HashMap<>()));
+        InitializeResponseData response = client.initialize(secretKey, new HashMap<>());
+        Assertions.assertEquals("Unable to Initialize transaction.", response.getMessage());
     }
 
     @Test
-    public void initialize_Success() throws Exception {
+    void initialize_Success() throws Exception {
         //given
         when(chapaClientApi.initialize(anyString(), anyMap())).thenReturn(call);
         when(call.execute()).thenReturn(Response.success("{\"data\":{\"checkout_url\":\"https://checkout.chapa.co/checkout/payment/somestring\"},\"message\":\"Hosted Link\",\"status\":\"success\"}"));
@@ -71,7 +74,7 @@ public class ChapaClientTest {
     }
 
     @Test
-    public void initialize2_Success() throws Exception {
+    void initialize2_Success() throws Exception {
         //given
         when(chapaClientApi.initialize(anyString(), anyMap())).thenReturn(call);
         when(call.execute()).thenReturn(Response.success("{\"data\":{\"checkout_url\":\"https://checkout.chapa.co/checkout/payment/somestring\"},\"message\":\"Hosted Link\",\"status\":\"success\"}"));
@@ -85,7 +88,7 @@ public class ChapaClientTest {
     }
 
     @Test
-    public void verify_failOnFailedResponse() throws Exception {
+    void verify_failOnFailedResponse() throws Exception {
         //given
         when(chapaClientApi.verify(anyString(), anyString())).thenReturn(call);
         when(call.execute()).thenReturn(Response.error(500, ResponseBody.create(MediaType.parse("application/json"), "")));
@@ -95,7 +98,7 @@ public class ChapaClientTest {
     }
 
     @Test
-    public void verify_Success() throws Exception {
+    void verify_Success() throws Exception {
         //given
         when(chapaClientApi.verify(anyString(), anyString())).thenReturn(call);
         when(call.execute()).thenReturn(Response.success("{\n" +
@@ -135,7 +138,7 @@ public class ChapaClientTest {
     }
 
     @Test
-    public void getBanks_failOnFailedResponse() throws Exception {
+    void getBanks_failOnFailedResponse() throws Exception {
         //given
         when(chapaClientApi.banks(anyString())).thenReturn(call);
         when(call.execute()).thenReturn(Response.error(500, ResponseBody.create(MediaType.parse("application/json"), "")));
@@ -144,40 +147,8 @@ public class ChapaClientTest {
         Assertions.assertThrows(ChapaException.class, () -> client.getBanks(secretKey));
     }
 
-    @Test
-    public void getBanks_Success() throws Exception {
-//        when(chapaClientApi.banks(anyString())).thenReturn(call);
-//        when(call.execute()).thenReturn(Response.success(new Gson().fromJson(
-//                "{\n" +
-//                "    \"data\": [\n" +
-//                "        {\n" +
-//                "            \"acct_length\": 16,\n" +
-//                "            \"active\": 1,\n" +
-//                "            \"country_id\": 1,\n" +
-//                "            \"created_at\": \"2023-01-24T04:28:30.000000Z\",\n" +
-//                "            \"currency\": \"ETB\",\n" +
-//                "            \"id\": \"971bd28c-ff80-420b-a0db-0a1a4be6ee8b\",\n" +
-//                "            \"is_mobilemoney\": null,\n" +
-//                "            \"is_rtgs\": null,\n" +
-//                "            \"name\": \"Abay Bank\",\n" +
-//                "            \"swift\": \"ABAYETAA\",\n" +
-//                "            \"updated_at\": \"2023-01-24T04:28:30.000000Z\"\n" +
-//                "        }\n" +
-//                "    ],\n" +
-//                "    \"message\": \"Banks retrieved\"\n" +
-//                "}", new TypeToken<ResponseBanks>(){}.getType())));
-//
-//        //assert
-//        List<Bank> response = client.getBanks(secretKey);
-//        verify(chapaClientApi).banks(anyString());
-//
-//        Assertions.assertNotNull(response);
-//        Assertions.assertEquals(1, response.size());
-//        Assertions.assertEquals(16, response.get(0).getAccountLength());
-    }
-
-    @Test
-    public void createSubAccount_failOnFailedResponse() throws Exception {
+   @Test
+    void createSubAccount_failOnFailedResponse() throws Exception {
         //given
         when(chapaClientApi.createSubAccount(anyString(), anyMap())).thenReturn(call);
         when(call.execute()).thenReturn(Response.error(500, ResponseBody.create(MediaType.parse("application/json"), "")));
@@ -187,7 +158,7 @@ public class ChapaClientTest {
     }
 
     @Test
-    public void createSubAccount_Success() throws Exception {
+    void createSubAccount_Success() throws Exception {
         //given
         when(chapaClientApi.createSubAccount(anyString(), anyMap())).thenReturn(call);
         when(call.execute()).thenReturn(Response.success("{\n" +
@@ -207,7 +178,7 @@ public class ChapaClientTest {
     }
 
     @Test
-    public void createSubAccount_Success2() throws Exception {
+    void createSubAccount_Success2() throws Exception {
         //given
         when(chapaClientApi.createSubAccount(anyString(), anyMap())).thenReturn(call);
         when(call.execute()).thenReturn(Response.success("{\n" +

@@ -13,10 +13,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 
 @ExtendWith(MockitoExtension.class)
-public class DateTimeDeserializerTest {
+class DateTimeDeserializerTest {
 
     @Test
-    public void deserialize() {
+    void deserialize() {
         //given
         String json = "{\"created_at\":\"2023-02-02T07:05:23.000000Z\"}";
 

@@ -3,7 +3,7 @@ package it.aman.chapa.exception;
 /**
  * A ChapaException is thrown to signal a problem during SDK execution.
  */
-public class ChapaException extends Exception {
+public class ChapaException extends RuntimeException {
 
     public ChapaException(String message) {
         super(message);

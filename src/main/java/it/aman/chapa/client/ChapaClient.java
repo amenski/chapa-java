@@ -1,6 +1,8 @@
 package it.aman.chapa.client;
 
 import com.google.gson.Gson;
+import it.aman.chapa.client.provider.DefaultRetrofitBuilderProvider;
+import it.aman.chapa.client.provider.RetrofitBuilderProvider;
 import it.aman.chapa.exception.ChapaException;
 import it.aman.chapa.model.InitializeResponseData;
 import it.aman.chapa.model.ResponseBanks;
@@ -13,79 +15,85 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
-import static it.aman.chapa.utility.StringUtils.isNotBlank;
+import static it.aman.chapa.utility.StringUtils.*;
 import static it.aman.chapa.utility.Util.jsonToMap;
 
-/**
- * Chapa default client implementation
- */
+
 public class ChapaClient implements IChapaClient {
 
+    public static final String BEARER = "Bearer ";
     private String baseUrl = "https://api.chapa.co/v1/";
     private ChapaClientApi chapaClientApi;
 
-    public ChapaClient() {
-        //
-    }
-
     public ChapaClient(final String url) {
-        this.baseUrl = url;
+        if(isNotBlank(url)) {
+            this.baseUrl = url;
+        }
+        this.buildApiClient();
     }
 
     @Override
-    public InitializeResponseData initialize(final String secretKey, Map<String, Object> fields) throws ChapaException {
+    public InitializeResponseData initialize(final String secretKey, Map<String, Object> fields) {
         try {
-            Response<InitializeResponseData> response = getClient().initialize("Bearer " + secretKey, fields).execute();
+            Response<InitializeResponseData> response = chapaClientApi.initialize(BEARER + secretKey, fields).execute();
             if (!response.isSuccessful()) {
-                return extractErrorBody(response.errorBody(), InitializeResponseData.class, "Unable to Initialize transaction.");
+                return convertErrorStringToClass(
+                        errorOrDefaultMessage(
+                                extractResponseBody(response.errorBody()), "Unable to Initialize transaction."), InitializeResponseData.class);
             }
             return response.body();
         } catch (IOException e) {
-            throw new RuntimeException("Unable to Initialize transaction.");
+            throw new ChapaException("Unable to Initialize transaction.");
         }
     }
 
     @Override
-    public InitializeResponseData initialize(final String secretKey, final String body) throws ChapaException {
+    public InitializeResponseData initialize(final String secretKey, final String body) {
         return this.initialize(secretKey, jsonToMap(body));
     }
 
     @Override
-    public VerifyResponseData verify(final String secretKey, final String transactionReference) throws ChapaException {
+    public VerifyResponseData verify(final String secretKey, final String transactionReference) {
         try {
-            Response<VerifyResponseData> response = getClient().verify("Bearer " + secretKey, transactionReference).execute();
+            Response<VerifyResponseData> response = chapaClientApi.verify(BEARER + secretKey, transactionReference).execute();
             if (!response.isSuccessful()) {
-                return extractErrorBody(response.errorBody(), VerifyResponseData.class, "Unable to verify transaction.");
+                return convertErrorStringToClass(
+                        errorOrDefaultMessage(
+                                extractResponseBody(response.errorBody()), "Unable to verify transaction."), VerifyResponseData.class);
             }
             return response.body();
         } catch (IOException e) {
-            throw new RuntimeException("Unable to verify transaction.");
+            throw new ChapaException("Unable to verify transaction.");
         }
     }
 
     @Override
     public ResponseBanks getBanks(final String secretKey) {
         try {
-            Response<ResponseBanks> response = getClient().banks("Bearer " + secretKey).execute();
+            Response<ResponseBanks> response = chapaClientApi.banks(BEARER + secretKey).execute();
             if (!response.isSuccessful()) {
-                return extractErrorBody(response.errorBody(), ResponseBanks.class, "Unable to get bank details.");
+                return convertErrorStringToClass(
+                        errorOrDefaultMessage(
+                                extractResponseBody(response.errorBody()), "Unable to get bank details."), ResponseBanks.class);
             }
             return response.body() != null? response.body() : null;
         } catch (IOException e) {
-            throw new RuntimeException("Unable to get bank details.");
+            throw new ChapaException("Unable to get bank details.");
         }
     }
 
     @Override
-    public SubAccountResponseData createSubAccount(final String secretKey, Map<String, Object> fields) throws ChapaException {
+    public SubAccountResponseData createSubAccount(final String secretKey, Map<String, Object> fields) {
         try {
-            Response<SubAccountResponseData> response = getClient().createSubAccount("Bearer " + secretKey, fields).execute();
+            Response<SubAccountResponseData> response = chapaClientApi.createSubAccount(BEARER + secretKey, fields).execute();
             if (!response.isSuccessful()) {
-                return extractErrorBody(response.errorBody(), SubAccountResponseData.class, "Unable to create sub account.");
+                return convertErrorStringToClass(
+                        errorOrDefaultMessage(
+                                extractResponseBody(response.errorBody()), "Unable to create sub account."), SubAccountResponseData.class);
             }
             return response.body();
         } catch (IOException e) {
-            throw new RuntimeException("Unable to create sub account.");
+            throw new ChapaException("Unable to create sub account.");
         }
     }
 
@@ -94,22 +102,26 @@ public class ChapaClient implements IChapaClient {
         return this.createSubAccount(secretKey, jsonToMap(body));
     }
     
-    private ChapaClientApi getClient() {
-        if (chapaClientApi == null && isNotBlank(baseUrl)) {
-            chapaClientApi = RetrofitClientConfigurator.buildClient(baseUrl);
-        }
-        return chapaClientApi;
+    private void buildApiClient() {
+        if (isBlank(baseUrl)) throw new ChapaException("Unable to create a client. Api baseUrl can't be empty");
+        chapaClientApi = RetrofitBuilderProvider.buildClient(baseUrl, new DefaultRetrofitBuilderProvider());
     }
 
-    private <T> T extractErrorBody(ResponseBody responseBody, Class<T> cls, String message) {
-        String body = Optional.ofNullable(responseBody).map(t -> {
+    private String extractResponseBody(ResponseBody responseBody) {
+        return Optional.ofNullable(responseBody).map(t -> {
             try {
                 return t.string();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }).orElse(message);
+        }).orElse("");
+    }
 
-        return new Gson().fromJson(body, cls);
+    private String errorOrDefaultMessage(String errorMessage, String defaultMessage) {
+        return defaultIfBlank(errorMessage, defaultMessage);
+    }
+
+    private <T> T convertErrorStringToClass(String body, Class<T> cls) {
+        return new Gson().fromJson("{\"message\":\"" + body + "\"}", cls);
     }
 }

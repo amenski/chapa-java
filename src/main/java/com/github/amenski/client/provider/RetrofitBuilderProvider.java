@@ -1,6 +1,6 @@
-package it.aman.chapa.client.provider;
+package com.github.amenski.client.provider;
 
-import it.aman.chapa.client.ChapaClientApi;
+import com.github.amenski.client.ChapaClientApi;
 import retrofit2.Retrofit;
 
 public class RetrofitBuilderProvider {

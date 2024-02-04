@@ -1,4 +1,4 @@
-package it.aman.chapa.client.provider;
+package com.github.amenski.client.provider;
 
 import retrofit2.Retrofit.Builder;
 

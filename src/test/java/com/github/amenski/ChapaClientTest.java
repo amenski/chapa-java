@@ -54,8 +54,7 @@ class ChapaClientTest {
         when(call.execute()).thenReturn(Response.error(500, ResponseBody.create(MediaType.parse("application/json"), "")));
 
         //assert
-        InitializeResponseData response = client.initialize(secretKey, new HashMap<>());
-        Assertions.assertEquals("Unable to Initialize transaction.", response.getMessage());
+        Assertions.assertThrows(RuntimeException.class, () ->client.initialize(secretKey, new HashMap<>()));
     }
 
     @Test

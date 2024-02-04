@@ -1,4 +1,4 @@
-package it.aman.chapa.client.provider;
+package com.github.amenski.client.provider;
 
 import io.github.resilience4j.core.IntervalFunction;
 import io.github.resilience4j.retrofit.RetryCallAdapter;

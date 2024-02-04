@@ -5,8 +5,8 @@ import com.github.amenski.model.ResponseBanks;
 import com.github.amenski.model.SubAccountResponseData;
 import com.github.amenski.model.VerifyResponseData;
 import com.google.gson.Gson;
-import it.aman.chapa.client.provider.DefaultRetrofitBuilderProvider;
-import it.aman.chapa.client.provider.RetrofitBuilderProvider;
+import com.github.amenski.client.provider.DefaultRetrofitBuilderProvider;
+import com.github.amenski.client.provider.RetrofitBuilderProvider;
 import com.github.amenski.exception.ChapaException;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
@@ -37,9 +37,7 @@ public class ChapaClient implements IChapaClient {
         try {
             Response<InitializeResponseData> response = chapaClientApi.initialize(BEARER + secretKey, fields).execute();
             if (!response.isSuccessful()) {
-                return convertErrorStringToClass(
-                        errorOrDefaultMessage(
-                                extractResponseBody(response.errorBody()), "Unable to Initialize transaction."), InitializeResponseData.class);
+                throw new ChapaException(extractErrorMessageOrDefault(response.errorBody(), "Unable to Initialize transaction."));
             }
             return response.body();
         } catch (IOException e) {
@@ -57,9 +55,7 @@ public class ChapaClient implements IChapaClient {
         try {
             Response<VerifyResponseData> response = chapaClientApi.verify(BEARER + secretKey, transactionReference).execute();
             if (!response.isSuccessful()) {
-                return convertErrorStringToClass(
-                        errorOrDefaultMessage(
-                                extractResponseBody(response.errorBody()), "Unable to verify transaction."), VerifyResponseData.class);
+                throw new ChapaException(extractErrorMessageOrDefault(response.errorBody(), "Unable to verify transaction."));
             }
             return response.body();
         } catch (IOException e) {
@@ -72,9 +68,7 @@ public class ChapaClient implements IChapaClient {
         try {
             Response<ResponseBanks> response = chapaClientApi.banks(BEARER + secretKey).execute();
             if (!response.isSuccessful()) {
-                return convertErrorStringToClass(
-                        errorOrDefaultMessage(
-                                extractResponseBody(response.errorBody()), "Unable to get bank details."), ResponseBanks.class);
+                throw new ChapaException(extractErrorMessageOrDefault(response.errorBody(), "Unable to get bank details."));
             }
             return response.body() != null? response.body() : null;
         } catch (ChapaException | IOException e) {
@@ -87,9 +81,7 @@ public class ChapaClient implements IChapaClient {
         try {
             Response<SubAccountResponseData> response = chapaClientApi.createSubAccount(BEARER + secretKey, fields).execute();
             if (!response.isSuccessful()) {
-                return convertErrorStringToClass(
-                        errorOrDefaultMessage(
-                                extractResponseBody(response.errorBody()), "Unable to create sub account."), SubAccountResponseData.class);
+                throw new ChapaException(extractErrorMessageOrDefault(response.errorBody(), "Unable to create sub account."));
             }
             return response.body();
         } catch (IOException e) {
@@ -107,21 +99,14 @@ public class ChapaClient implements IChapaClient {
         chapaClientApi = RetrofitBuilderProvider.buildClient(baseUrl, new DefaultRetrofitBuilderProvider());
     }
 
-    private String extractResponseBody(ResponseBody responseBody) {
-        return Optional.ofNullable(responseBody).map(t -> {
+    private String extractErrorMessageOrDefault(ResponseBody errorMessage, String defaultMessage) {
+        return Optional.ofNullable(errorMessage).map(t -> {
             try {
                 return t.string();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }).orElse("");
+        }).orElse(defaultMessage);
     }
 
-    private String errorOrDefaultMessage(String errorMessage, String defaultMessage) {
-        return defaultIfBlank(errorMessage, defaultMessage);
-    }
-
-    private <T> T convertErrorStringToClass(String body, Class<T> cls) {
-        return new Gson().fromJson("{\"message\":\"" + body + "\"}", cls);
-    }
 }

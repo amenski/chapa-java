@@ -30,14 +30,14 @@ Visit official [Chapa's API Documentation](https://developer.chapa.co/docs)
  Add the below maven dependency to your `pom.xml` file.
 ```xml
     <dependency>
-      <groupId>it.aman</groupId>
+      <groupId>com.github.amenski</groupId>
       <artifactId>chapa</artifactId>
       <version>1.0.0</version>
     </dependency>
 ```
 Or add the below gradle dependency to your `build.gradle` file.
 ```groovy
-    implementation 'it.aman:chapa:1.0.0'
+    implementation 'com.github.amenski:chapa:1.0.0'
 ```
 
 ## Usage
@@ -46,21 +46,24 @@ Or add the below gradle dependency to your `build.gradle` file.
 
 
 Instantiate a `Chapa` class.
+
 ```java       
+Chapa chapa = new Chapa.ChapaBuilder()
+        .client(new ChapaClient()) // --> default implementation
+        .secretKey("secret-key")
+        .build();
+```
+Or if you want to use your own implementation, implement the methods from `IChapaClient` interface.
+```java
+import com.github.amenski.client.ChapaClient;
+
 public class MyCustomChapaClient implements IChapaClient {
   ...
 }
 
-Chapa chapa = new Chapa.ChapaBuilder()
-      .client(new MyCustomChapaClient())
-      .secretKey("secret-key")
-      .build();
-```
-Or if you want to use your own implementation of `IChapaClient` interface.
-```java
+
 Chapa chapa = new Chapa(new MyCustomChapaClient(), "secrete-key");
 ```
-Note: `MyCustomChapaClient` must implement `IChapaClient` interface.
 
 To initialize a transaction, you simply need to specify your information by either using our `PostData` class.
 
@@ -151,68 +154,72 @@ Create subaccount
  SubAccountResponseData actualResponse = chapa.createSubAccount(subAccountDto);
 ```
 ## Example
-```java
-package it.aman.chapa;
 
-import it.aman.chapa.client.ChapaClient;
-import it.aman.chapa.exception.ChapaException;
-import it.aman.chapa.model.*;
+```java
+package com.github.amenski.chapa;
+
+import com.github.amenski.Chapa;
+import com.github.amenski.client.ChapaClient;
+import com.github.amenski.ChapaException;
+import com.github.amenski.model.Customization;
+import com.github.amenski.model.PostData;
+import com.github.amenski.model.ResponseBanks;
+import com.github.amenski.model.SplitTypeEnum;
+import com.github.amenski.model.SubAccountDto;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 public class ChapaExample {
 
-  public static void main(String[] args) throws ChapaException {
-    Chapa chapa = new Chapa.ChapaBuilder()
-            .client(new ChapaClient())
-            .secretKey("CHASECK_TEST-...")
-            .build();
+    public static void main(String[] args) throws ChapaException {
+        Chapa chapa = new Chapa.ChapaBuilder()
+                .client(new ChapaClient())
+                .secretKey("CHASECK_TEST-...")
+                .build();
 
-    Customization customization = new Customization()
-            .setTitle("E-commerce")
-            .setDescription("It is time to pay")
-            .setLogo("https://mylogo.com/log.png");
-    PostData postData = new PostData()
-            .setAmount(new BigDecimal("100"))
-            .setCurrency("ETB")
-            .setFirstName("Abebe")
-            .setLastName("Bikila")
-            .setEmail("abebe@bikila.com")
-            .setTxRef(UUID.randomUUID().toString())
-            .setCallbackUrl("https://chapa.co")
-            .setReturnUrl("https://chapa.co")
-            .setSubAccountId("testSubAccountId")
-            .setCustomization(customization);
+        Customization customization = new Customization()
+                .setTitle("E-commerce")
+                .setDescription("It is time to pay")
+                .setLogo("https://mylogo.com/log.png");
+        PostData postData = new PostData()
+                .setAmount(new BigDecimal("100"))
+                .setCurrency("ETB")
+                .setFirstName("Abebe")
+                .setLastName("Bikila")
+                .setEmail("abebe@bikila.com")
+                .setTxRef(UUID.randomUUID().toString())
+                .setCallbackUrl("https://chapa.co")
+                .setReturnUrl("https://chapa.co")
+                .setSubAccountId("testSubAccountId")
+                .setCustomization(customization);
 
-    SubAccountDto subAccountDto = new SubAccountDto()
-            .setBusinessName("Abebe Suq")
-            .setAccountName("Abebe Bikila")
-            .setAccountNumber("0123456789")
-            .setBankCode("853d0598-9c01-41ab-ac99-48eab4da1513")
-            .setSplitType(SplitTypeEnum.PERCENTAGE)
-            .setSplitValue(0.2);
+        SubAccountDto subAccountDto = new SubAccountDto()
+                .setBusinessName("Abebe Suq")
+                .setAccountName("Abebe Bikila")
+                .setAccountNumber("0123456789")
+                .setBankCode("853d0598-9c01-41ab-ac99-48eab4da1513")
+                .setSplitType(SplitTypeEnum.PERCENTAGE)
+                .setSplitValue(0.2);
 
-    // list of banks
-    ResponseBanks banks = chapa.getBanks();
-    if ((banks == null || banks.getData() == null)) {
-      System.out.println("Create SubAccount response: " + banks);
-    } else {
-      banks.getData().forEach(System.out::println);
+        // list of banks
+        ResponseBanks banks = chapa.getBanks();
+        if ((banks == null || banks.getData() == null)) {
+            System.out.println("Create SubAccount response: " + banks);
+        } else {
+            banks.getData().forEach(System.out::println);
+        }
+        // create subaccount
+        System.out.println("Create SubAccount response: " + chapa.createSubAccount(subAccountDto));
+        // initialize payment
+        System.out.println("Initialize response: " + chapa.initialize(postData));
+        // verify payment
+        System.out.println("Verify response: " + chapa.verify(postData.getTxRef()));
     }
-    // create subaccount
-    System.out.println("Create SubAccount response: " + chapa.createSubAccount(subAccountDto));
-    // initialize payment
-    System.out.println("Initialize response: " + chapa.initialize(postData));
-    // verify payment
-    System.out.println("Verify response: " + chapa.verify(postData.getTxRef()));
-  }
 }
 ```
 ## Contribution
 If you find any bug or have any suggestion, please feel free to open an issue or pull request.
 
 ## License
-This open source library is licensed under the terms of the MIT License.
-
-Enjoy!
+MIT

@@ -30,14 +30,14 @@ Visit official [Chapa's API Documentation](https://developer.chapa.co/docs)
  Add the below maven dependency to your `pom.xml` file.
 ```xml
     <dependency>
-      <groupId>it.aman</groupId>
+      <groupId>com.github.amenski</groupId>
       <artifactId>chapa</artifactId>
       <version>1.0.0</version>
     </dependency>
 ```
 Or add the below gradle dependency to your `build.gradle` file.
 ```groovy
-    implementation 'it.aman:chapa:1.0.0'
+    implementation 'com.github.amenski:chapa:1.0.0'
 ```
 
 ## Usage
@@ -46,21 +46,24 @@ Or add the below gradle dependency to your `build.gradle` file.
 
 
 Instantiate a `Chapa` class.
+
 ```java       
+Chapa chapa = new Chapa.ChapaBuilder()
+        .client(new ChapaClient()) // --> default implementation
+        .secretKey("secret-key")
+        .build();
+```
+Or if you want to use your own implementation, implement the methods from `IChapaClient` interface.
+```java
+import com.github.amenski.client.ChapaClient;
+
 public class MyCustomChapaClient implements IChapaClient {
   ...
 }
 
-Chapa chapa = new Chapa.ChapaBuilder()
-      .client(new MyCustomChapaClient())
-      .secretKey("secret-key")
-      .build();
-```
-Or if you want to use your own implementation of `IChapaClient` interface.
-```java
+
 Chapa chapa = new Chapa(new MyCustomChapaClient(), "secrete-key");
 ```
-Note: `MyCustomChapaClient` must implement `IChapaClient` interface.
 
 To initialize a transaction, you simply need to specify your information by either using our `PostData` class.
 
@@ -153,11 +156,11 @@ Create subaccount
 ## Example
 
 ```java
-package it.aman.chapa;
+package com.github.amenski.chapa;
 
 import com.github.amenski.Chapa;
 import com.github.amenski.client.ChapaClient;
-import exception.com.github.amenski.ChapaException;
+import com.github.amenski.ChapaException;
 import com.github.amenski.model.Customization;
 import com.github.amenski.model.PostData;
 import com.github.amenski.model.ResponseBanks;
@@ -219,6 +222,4 @@ public class ChapaExample {
 If you find any bug or have any suggestion, please feel free to open an issue or pull request.
 
 ## License
-This open source library is licensed under the terms of the MIT License.
-
-Enjoy!
+MIT

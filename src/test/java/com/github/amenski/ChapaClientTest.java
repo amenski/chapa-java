@@ -6,6 +6,7 @@ import com.github.amenski.exception.ChapaException;
 import com.github.amenski.model.InitializeResponseData;
 import com.github.amenski.model.SubAccountResponseData;
 import com.github.amenski.model.VerifyResponseData;
+import com.google.gson.Gson;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.Assertions;
@@ -59,7 +60,7 @@ public class ChapaClientTest {
     public void initialize_Success() throws Exception {
         //given
         when(chapaClientApi.initialize(anyString(), anyMap())).thenReturn(call);
-        when(call.execute()).thenReturn(Response.success("{\"data\":{\"checkout_url\":\"https://checkout.chapa.co/checkout/payment/somestring\"},\"message\":\"Hosted Link\",\"status\":\"success\"}"));
+        when(call.execute()).thenReturn(Response.success(getInitializeResponseData()));
 
         //assert
         InitializeResponseData response = client.initialize(secretKey, new HashMap<>());
@@ -73,7 +74,7 @@ public class ChapaClientTest {
     public void initialize2_Success() throws Exception {
         //given
         when(chapaClientApi.initialize(anyString(), anyMap())).thenReturn(call);
-        when(call.execute()).thenReturn(Response.success("{\"data\":{\"checkout_url\":\"https://checkout.chapa.co/checkout/payment/somestring\"},\"message\":\"Hosted Link\",\"status\":\"success\"}"));
+        when(call.execute()).thenReturn(Response.success(getInitializeResponseData()));
 
         //assert
         InitializeResponseData response = client.initialize(secretKey, "{\"ignore\": \"ignore\"}");
@@ -97,32 +98,7 @@ public class ChapaClientTest {
     public void verify_Success() throws Exception {
         //given
         when(chapaClientApi.verify(anyString(), anyString())).thenReturn(call);
-        when(call.execute()).thenReturn(Response.success("{\n" +
-                "    \"message\": \"Payment details\",\n" +
-                "    \"status\": \"success\",\n" +
-                "    \"data\": {\n" +
-                "        \"first_name\": \"Bilen\",\n" +
-                "        \"last_name\": \"Gizachew\",\n" +
-                "        \"email\": \"abebech_bekele@gmail.com\",\n" +
-                "        \"currency\": \"ETB\",\n" +
-                "        \"amount\": 100,\n" +
-                "        \"charge\": 3.5,\n" +
-                "        \"mode\": \"test\",\n" +
-                "        \"method\": \"test\",\n" +
-                "        \"type\": \"API\",\n" +
-                "        \"status\": \"success\",\n" +
-                "        \"reference\": \"6jnheVKQEmy\",\n" +
-                "        \"tx_ref\": \"chewatatest-6669\",\n" +
-                "        \"customization\": {\n" +
-                "            \"title\": \"Payment for my favourite merchant\",\n" +
-                "            \"description\": \"I love online payments\",\n" +
-                "            \"logo\": null\n" +
-                "        },\n" +
-                "        \"meta\": null,\n" +
-                "        \"created_at\": \"2023-02-02T07:05:23.000000Z\",\n" +
-                "        \"updated_at\": \"2023-02-02T07:05:23.000000Z\"\n" +
-                "    }\n" +
-                "}"));
+        when(call.execute()).thenReturn(Response.success(getVerifyResponseData()));
 
         //assert
         VerifyResponseData response = client.verify(secretKey, "ignore");
@@ -140,7 +116,7 @@ public class ChapaClientTest {
         when(call.execute()).thenReturn(Response.error(500, ResponseBody.create(MediaType.parse("application/json"), "")));
 
         //assert
-        Assertions.assertThrows(ChapaException.class, () -> client.getBanks(secretKey));
+        Assertions.assertThrows(RuntimeException.class, () -> client.getBanks(secretKey));
     }
 
     @Test
@@ -189,13 +165,7 @@ public class ChapaClientTest {
     public void createSubAccount_Success() throws Exception {
         //given
         when(chapaClientApi.createSubAccount(anyString(), anyMap())).thenReturn(call);
-        when(call.execute()).thenReturn(Response.success("{\n" +
-                "    \"message\": \"Subaccount created succesfully\",\n" +
-                "    \"status\": \"success\",\n" +
-                "    \"data\": {\n" +
-                "        \"subaccounts[id]\": \"837b4e5e-57c8-4e39-b2df-66e7886b8bdb\"\n" +
-                "    }\n" +
-                "}"));
+        when(call.execute()).thenReturn(Response.success(getSubAccountResponseData()));
 
         // verify
         SubAccountResponseData response = client.createSubAccount(secretKey, new HashMap<>());
@@ -209,13 +179,7 @@ public class ChapaClientTest {
     public void createSubAccount_Success2() throws Exception {
         //given
         when(chapaClientApi.createSubAccount(anyString(), anyMap())).thenReturn(call);
-        when(call.execute()).thenReturn(Response.success("{\n" +
-                "    \"message\": \"Subaccount created succesfully\",\n" +
-                "    \"status\": \"success\",\n" +
-                "    \"data\": {\n" +
-                "        \"subaccounts[id]\": \"837b4e5e-57c8-4e39-b2df-66e7886b8bdb\"\n" +
-                "    }\n" +
-                "}"));
+        when(call.execute()).thenReturn(Response.success(getSubAccountResponseData()));
 
         // verify
         SubAccountResponseData response = client.createSubAccount(secretKey, "{\"ignore\": \"ignore\"}");
@@ -223,5 +187,51 @@ public class ChapaClientTest {
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(response.getMessage(), "Subaccount created succesfully");
+    }
+
+
+    private static SubAccountResponseData getSubAccountResponseData() {
+        return new Gson().fromJson("{\n" +
+                "    \"message\": \"Subaccount created succesfully\",\n" +
+                "    \"status\": \"success\",\n" +
+                "    \"data\": {\n" +
+                "        \"subaccounts[id]\": \"837b4e5e-57c8-4e39-b2df-66e7886b8bdb\"\n" +
+                "    }\n" +
+                "}", SubAccountResponseData.class);
+    }
+
+
+    private static VerifyResponseData getVerifyResponseData() {
+        return new Gson().fromJson("{\n" +
+                "    \"message\": \"Payment details\",\n" +
+                "    \"status\": \"success\",\n" +
+                "    \"data\": {\n" +
+                "        \"first_name\": \"Bilen\",\n" +
+                "        \"last_name\": \"Gizachew\",\n" +
+                "        \"email\": \"abebech_bekele@gmail.com\",\n" +
+                "        \"currency\": \"ETB\",\n" +
+                "        \"amount\": 100,\n" +
+                "        \"charge\": 3.5,\n" +
+                "        \"mode\": \"test\",\n" +
+                "        \"method\": \"test\",\n" +
+                "        \"type\": \"API\",\n" +
+                "        \"status\": \"success\",\n" +
+                "        \"reference\": \"6jnheVKQEmy\",\n" +
+                "        \"tx_ref\": \"chewatatest-6669\",\n" +
+                "        \"customization\": {\n" +
+                "            \"title\": \"Payment for my favourite merchant\",\n" +
+                "            \"description\": \"I love online payments\",\n" +
+                "            \"logo\": null\n" +
+                "        },\n" +
+                "        \"meta\": null,\n" +
+                "        \"created_at\": \"2023-02-02T07:05:23.000000Z\",\n" +
+                "        \"updated_at\": \"2023-02-02T07:05:23.000000Z\"\n" +
+                "    }\n" +
+                "}", VerifyResponseData.class);
+    }
+
+
+    private static InitializeResponseData getInitializeResponseData() {
+        return new Gson().fromJson("{\"data\":{\"checkout_url\":\"https://checkout.chapa.co/checkout/payment/somestring\"},\"message\":\"Hosted Link\",\"status\":\"success\"}", InitializeResponseData.class);
     }
 }

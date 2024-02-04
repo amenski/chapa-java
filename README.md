@@ -65,6 +65,25 @@ public class MyCustomChapaClient implements IChapaClient {
 Chapa chapa = new Chapa(new MyCustomChapaClient(), "secrete-key");
 ```
 
+## Retries (with ExponentialBackoff)
+To add retries to clients, use `RetrierRetrofitClientProvider`. This class allows configuring 3 retries if a call fails.
+Provides retrofit client to make calls to chapa api. <br>
+Retry will be done with an <a href="https://en.wikipedia.org/wiki/Exponential_backoff">ExponentialBackoff</a> strategy.<br>
+<pre>
+Example usage:
+public class CustomChapaClient implements IChapaClient {
+    private String baseUrl = "https://api.chapa.co/v1/";
+    private ChapaClientApi chapaClientApi;
+    .
+    .
+    private void buildApiClient() {
+         if (isBlank(baseUrl)) throw new ChapaException("Unable to create a client. Api baseUrl can't be empty");
+         chapaClientApi = new RetrierRetrofitClientProvider().buildClient(ChapaClientApi.class, baseUrl);
+    }
+}
+</pre>
+
+
 To initialize a transaction, you simply need to specify your information by either using our `PostData` class.
 
 ```java

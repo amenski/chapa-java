@@ -6,7 +6,6 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -15,7 +14,35 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-public class RetrierRetrofitBuilderProvider implements IRetrofitBuilderProvider {
+/**
+ *
+ * Provides retrofit client to make calls to chapa api. <br>
+ *
+ * This implementation will retry calls to chapa api upto {@link RETRY_COUNT (3)} times.<br>
+ *
+ * Retry will be done with an <a href="https://en.wikipedia.org/wiki/Exponential_backoff">ExponentialBackoff</a> strategy.<br>
+ *
+ * Timeouts are all set to 10_000 millis <br>
+ *
+ *
+ * <pre>
+ * Example usage:
+ * public class CustomChapaClient implements IChapaClient {
+ *
+ *     private String baseUrl = "https://api.chapa.co/v1/";
+ *     private ChapaClientApi chapaClientApi;
+ *     .
+ *     .
+ *     private void buildApiClient() {
+ *          if (isBlank(baseUrl)) throw new ChapaException("Unable to create a client. Api baseUrl can't be empty");
+ *          chapaClientApi = new RetrierRetrofitClientProvider().buildClient(ChapaClientApi.class, baseUrl);
+ *     }
+ * }
+ * </pre>
+ */
+public class RetrierRetrofitClientProvider implements RetrofitClientProvider {
+
+    private static final int RETRY_COUNT = 3;
 
     @Override
     public Retrofit.Builder provideRetrofitBuilder(String baseUrl) {
@@ -25,7 +52,6 @@ public class RetrierRetrofitBuilderProvider implements IRetrofitBuilderProvider 
                 .connectTimeout(timeOutMillis, TimeUnit.MILLISECONDS)
                 .readTimeout(timeOutMillis, TimeUnit.MILLISECONDS)
                 .writeTimeout(timeOutMillis, TimeUnit.MILLISECONDS)
-                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
 
         return new Retrofit.Builder()
@@ -36,7 +62,8 @@ public class RetrierRetrofitBuilderProvider implements IRetrofitBuilderProvider 
     }
 
     private static Retry retry(long initialIntervalMillis) {
-        RetryConfig retryCOnfig = RetryConfig.custom().maxAttempts(3)
+        RetryConfig retryCOnfig = RetryConfig.custom()
+                .maxAttempts(RETRY_COUNT)
                 .intervalFunction(IntervalFunction.ofExponentialBackoff(initialIntervalMillis, 2))
                 .retryOnResult(new RetryPredicate())
                 .failAfterMaxAttempts(true)
@@ -49,8 +76,8 @@ public class RetrierRetrofitBuilderProvider implements IRetrofitBuilderProvider 
 
         @Override
         public boolean test(Object value) {
-            Response<String> response = (Response<String>) value;
-            return response.isSuccessful();
+            Response<Object> response = (Response<Object>) value;
+            return !response.isSuccessful();
         }
     }
 }

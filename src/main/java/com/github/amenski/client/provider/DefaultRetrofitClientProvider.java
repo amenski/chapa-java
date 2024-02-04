@@ -2,14 +2,20 @@ package com.github.amenski.client.provider;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-public class DefaultRetrofitBuilderProvider implements IRetrofitBuilderProvider {
+/**
+ *
+ * Provides retrofit client to make calls to chapa api.
+ *
+ * This implementation will not retry on failures.
+ *
+ */
+public class DefaultRetrofitClientProvider implements RetrofitClientProvider {
 
     @Override
     public Retrofit.Builder provideRetrofitBuilder(String baseUrl) {
@@ -19,7 +25,6 @@ public class DefaultRetrofitBuilderProvider implements IRetrofitBuilderProvider 
                 .connectTimeout(timeOutMillis, TimeUnit.MILLISECONDS)
                 .readTimeout(timeOutMillis, TimeUnit.MILLISECONDS)
                 .writeTimeout(timeOutMillis, TimeUnit.MILLISECONDS)
-                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
 
         return new Retrofit.Builder()

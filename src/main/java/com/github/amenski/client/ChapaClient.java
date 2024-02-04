@@ -1,12 +1,11 @@
 package com.github.amenski.client;
 
+import com.github.amenski.client.provider.DefaultRetrofitClientProvider;
+import com.github.amenski.client.provider.RetrierRetrofitClientProvider;
 import com.github.amenski.model.InitializeResponseData;
 import com.github.amenski.model.ResponseBanks;
 import com.github.amenski.model.SubAccountResponseData;
 import com.github.amenski.model.VerifyResponseData;
-import com.google.gson.Gson;
-import com.github.amenski.client.provider.DefaultRetrofitBuilderProvider;
-import com.github.amenski.client.provider.RetrofitBuilderProvider;
 import com.github.amenski.exception.ChapaException;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
@@ -24,6 +23,10 @@ public class ChapaClient implements IChapaClient {
     public static final String BEARER = "Bearer ";
     private String baseUrl = "https://api.chapa.co/v1/";
     private ChapaClientApi chapaClientApi;
+
+    public ChapaClient() {
+        this("https://api.chapa.co/v1/");
+    }
 
     public ChapaClient(final String url) {
         if(isNotBlank(url)) {
@@ -96,7 +99,7 @@ public class ChapaClient implements IChapaClient {
     
     private void buildApiClient() {
         if (isBlank(baseUrl)) throw new ChapaException("Unable to create a client. Api baseUrl can't be empty");
-        chapaClientApi = RetrofitBuilderProvider.buildClient(baseUrl, new DefaultRetrofitBuilderProvider());
+        chapaClientApi = new DefaultRetrofitClientProvider().buildClient(ChapaClientApi.class, baseUrl);
     }
 
     private String extractErrorMessageOrDefault(ResponseBody errorMessage, String defaultMessage) {

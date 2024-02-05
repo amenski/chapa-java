@@ -1,5 +1,6 @@
-it.aman.chapa
-it.aman.chapa.client
-it.aman.chapa.exception
-it.aman.chapa.model
-it.aman.chapa.utility
+com.github.amenski
+com.github.amenski.client
+com.github.amenski.client.provider
+com.github.amenski.exception
+com.github.amenski.model
+com.github.amenski.utility

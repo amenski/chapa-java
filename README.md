@@ -46,7 +46,6 @@ Or add the below gradle dependency to your `build.gradle` file.
 
 
 Instantiate a `Chapa` class.
-
 ```java       
 Chapa chapa = new Chapa.ChapaBuilder()
         .client(new ChapaClient()) // --> default implementation
@@ -173,7 +172,6 @@ Create subaccount
  SubAccountResponseData actualResponse = chapa.createSubAccount(subAccountDto);
 ```
 ## Example
-
 ```java
 package com.github.amenski.chapa;
 
@@ -238,7 +236,7 @@ public class ChapaExample {
 }
 ```
 ## Contribution
-If you find any bug or have any suggestion, please feel free to open an issue or pull request.
+Please feel free to open an issue or pull request.
 
 ## License
 MIT

@@ -5,6 +5,7 @@ import io.github.resilience4j.core.IntervalFunction;
 import io.github.resilience4j.retrofit.RetryCallAdapter;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
+import okhttp3.OkHttpClient;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -39,16 +40,15 @@ public class RetrierRetrofitClientProvider extends BaseRetrofitClientProvider {
     private static final int DEFAULT_RETRY_COUNT = 3;
     private static final double BACKOFF_MULTIPLIER = 2.0;
 
-    private final RetryConfig retryConfig;
     private final String baseUrl;
+    private final RetryConfig retryConfig;
 
     private RetrierRetrofitClientProvider(Builder builder) {
         super(builder.timeoutMillis);
-        this.retryConfig = createRetryConfig(builder.timeoutMillis, builder.maxRetries);
-        if (StringUtils.isBlank(builder.baseUrl)) {
-            throw new IllegalArgumentException("Api baseUrl can't be null");
-        }
+        super.setClient(builder.client);
+        super.setDebug(builder.debug);
         this.baseUrl = builder.baseUrl;
+        this.retryConfig = createRetryConfig(builder.timeoutMillis, builder.maxRetries);
     }
 
     private static RetryConfig createRetryConfig(long initialInterval, int maxAttempts) {
@@ -71,9 +71,11 @@ public class RetrierRetrofitClientProvider extends BaseRetrofitClientProvider {
     }
 
     public static class Builder {
+        private String baseUrl = "";
         private long timeoutMillis = DEFAULT_TIMEOUT;
         private int maxRetries = DEFAULT_RETRY_COUNT;
-        private String baseUrl = "";
+        private boolean debug;
+        private OkHttpClient client;
 
         public Builder timeout(long timeoutMillis) {
             this.timeoutMillis = timeoutMillis;
@@ -86,7 +88,20 @@ public class RetrierRetrofitClientProvider extends BaseRetrofitClientProvider {
         }
 
         public Builder baseUrl(String baseUrl) {
+            if (StringUtils.isBlank(baseUrl)) {
+                throw new IllegalArgumentException("Api baseUrl can't be null");
+            }
             this.baseUrl = baseUrl;
+            return this;
+        }
+
+        public Builder debug(boolean debug) {
+            this.debug = debug;
+            return this;
+        }
+
+        public Builder client(OkHttpClient client) {
+            this.client = client;
             return this;
         }
 

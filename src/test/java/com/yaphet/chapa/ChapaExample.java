@@ -19,6 +19,7 @@ public class ChapaExample {
                 .baseUrl("https://api.chapa.co/v1/")
                 .maxRetries(3)
                 .timeout(10000)
+                .debug(true)
                 .build()
                 .create();
 

@@ -37,10 +37,9 @@ public abstract class BaseRetrofitClientProvider implements RetrofitClientProvid
 
     @Override
     public RetrofitClientProvider setClient(OkHttpClient client) {
-        if (client == null) {
-            throw new IllegalArgumentException("Client can't be null");
+        if (client != null) {
+            this.httpClient = client;
         }
-        this.httpClient = client;
         return this;
     }
 

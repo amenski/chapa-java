@@ -37,8 +37,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrierRetrofitClientProvider extends BaseRetrofitClientProvider {
 
     private static final long DEFAULT_TIMEOUT = 10000;
-    private static final int DEFAULT_RETRY_COUNT = 3;
-    private static final double BACKOFF_MULTIPLIER = 2.0;
+    private static final int DEFAULT_RETRY_COUNT = 2;
+    private static final double BACKOFF_MULTIPLIER = 1.5;
 
     private final String baseUrl;
     private final RetryConfig retryConfig;

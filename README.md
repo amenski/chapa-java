@@ -43,40 +43,74 @@ Or add the below gradle dependency to your `build.gradle` file.
 
 ## Usage
 
+> **Note** : This doc might not fully cover chapa-api. Please refer to the chapa developer doc for more. And contributions are welcome too. Thanks.
+
+
 Instantiate a `Chapa` class.
 ```java       
 Chapa chapa = new Chapa("your-secrete-key");
 ```
-Or if you want to use your own implementation of `ChapaClient` interface.
+This will use the default implementation of `ChapaClient` interface. Internally, the SDK uses `DefaultRetrofitClientProvider` to make HTTP requests to Chapa API. This will not do retries on failed requests. If you want to implement your own client, you can do so by implementing the `ChapaClient` interface.
+
+As an alternative, a retriable client is available. This client will retry failed requests up to 3 times(or more if configured).
 ```java
-Chapa chapa = new Chapa("your-secrete-key", new MyCustomChapaClient());
+ChapaClientApi chapaClientRetrofit = new RetrierRetrofitClientProvider.Builder()
+        .baseUrl("https://api.chapa.co/v1/")
+        .maxRetries(5)
+        .timeout(10000)
+        .debug(true) // log request and response
+        .build()
+        .create();
+
+Chapa chapa = new Chapa.Builder()
+        .client(new ChapaClient(chapaClientRetrofit))
+        .secretKey("your-secrete-key")
+        .build();
 ```
-Note: `MyCustomChapaClient` must implement `ChapaClient` interface.
+> **Note:** Retry will be done with an [ExponentialBackoff](https://en.wikipedia.org/wiki/Exponential_backoff) strategy (with multiplier 1.5).
 
-To initialize a transaction, you can specify your information by either using our `PostData` class.
+If this does not meet your requirements, you can implement the `IChapaClient` interface and create your own custom implementation to use your favorite HTTP client.
 
-Note: Starting from version 1.1.0 you have to specify customization fields as a `Map<String, String>` object.
+```java
+public class MyCustomChapaClient implements IChapaClient {
+    // Implement the methods from IChapaClient interface
+}
+```
+Then, you can use your custom implementation like this:
+```java
+Chapa chapa = new Chapa.Builder()
+        .client(new MyCustomChapaClient())
+        .secretKey("your-secrete-key")
+        .build();
+```
+
+## Methods
+To initialize a transaction, you simply need to specify your information by either using our `PostData` class.
 
 ```java
 Customization customization = new Customization()
-    .setTitle("E-commerce")
-    .setDescription("It is time to pay")
-    .setLogo("https://mylogo.com/log.png");
+        .setTitle("E-commerce")
+        .setDescription("It is time to pay")
+        .setLogo("https://mylogo.com/log.png");
 PostData postData = new PostData()
-    .setAmount(new BigDecimal("100"))
-    .setCurrency("ETB")
-    .setFirstName("Abebe")
-    .setLastName("Bikila")
-    .setEmail("abebe@bikila")
-    .setTxRef(Util.generateToken())
-    .setCallbackUrl("https://chapa.co")
-    .setReturnUrl("https://chapa.co")
-    .setSubAccountId("testSubAccountId")
-    .setCustomization(customization);
+        .setAmount("100")
+        .setCurrency("ETB")
+        .setFirstName("Abebe")
+        .setLastName("Bikila")
+        .setEmail("abebe@bikila.com")
+        .setTxRef(UUID.randomUUID().toString())
+        .setCallbackUrl("https://chapa.co")
+        .setReturnUrl("https://chapa.co")
+        .setSubAccountId("testSubAccountId")
+        .setCustomization(customization);
+        
+        ...
+        
+        chapa.initialize(postData);
 ```
-Or, you can use a string JSON data.
+Or, as a string JSON data.
 ```java 
-String formData = " { " +
+String postDataString = " { " +
         "'amount': '100', " +
         "'currency': 'ETB'," +
         "'email': 'abebe@bikila.com'," +
@@ -91,35 +125,34 @@ String formData = " { " +
         "       'customization[logo]':'https://mylogo.com/log.png'" +
         "   }" +
         " }";
+
+        chapa.initialize(postDataString)
 ```
-Initialize payment
+Intitialize payment
 ```java
-InitializeResponseData responseData = chapa.initialize(postData);
-// Get the response message
-System.out.println(responseData.getMessage());
-// Get the checkout URL from the response JSON
-System.out.println(responseData.getData().getCheckOutUrl());
-// Get the raw response JSON
-System.out.println(responseData.getRawJson());
+InitializeResponseData responseData = chapa.initialize(postData) 
 ```
 Verify payment
 ```java
-// Get the verification response data
-VerifyResponseData verifyResponseData = chapa.verify("tx-myecommerce12345");
+VerifyResponseData actualResponseData = chapa.verify("tx-ref"); 
 ```
-Get the list of banks
+Get list of banks
 ```java
 List<Bank> banks = chapa.getBanks();
 ```
 To create a subaccount, you can specify your information by either using our `Subaccount` class.
 ```java
-SubAccount subAccount = new SubAccount()
-                .setBusinessName("Abebe Suq")
-                .setAccountName("Abebe Bikila")
-                .setAccountNumber("0123456789")
-                .setBankCode("96e41186-29ba-4e30-b013-2ca36d7e7025")
-                .setSplitType(SplitType.PERCENTAGE)
-                .setSplitValue(0.2);
+SubAccount subAccount = new SubAccountDto()
+        .setBusinessName("Abebe Suq")
+        .setAccountName("Abebe Bikila")
+        .setAccountNumber("0123456789")
+        .setBankCode("001")
+        .setSplitType(SplitTypeEnum.PERCENTAGE)
+        .setSplitValue(0.2);
+        
+        ...
+        
+        SubAccountResponseData response = chapa.createSubAccount(subAccountDto);
 ```
 Or, you can use a string JSON data.
 ```java
@@ -131,68 +164,76 @@ String subAccount = " { " +
         "'split_type': 'percentage'," +
         "'split_value': '0.2'" +
         " }";
+
+        ...
+
+        SubAccountResponseData actualResponse = chapa.createSubAccount(subAccount);
 ```
 Create subaccount
 ```java
-SubAccountResponseData subAccountResponseData = chapa.createSubAccount(subAccount);
-// Get SubAccount id from the response JSOn
-System.out.println(subAccountResponseData.getData().getSubAccountId());
+ SubAccountResponseData actualResponse = chapa.createSubAccount(subAccountDto);
 ```
 ## Example
 ```java
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import io.github.yaphet17.chapa.Chapa;
-import io.github.yaphet17.chapa.PostData;
-import io.github.yaphet17.chapa.SubAccount;
-import io.github.yaphet17.chapa.SplitType;
-import io.github.yaphet17.chapa.Bank;
 
 public class ChapaExample {
 
-    public static void main(String[] args) {
-      Chapa chapa = new Chapa("your-secrete-key");
-    
-      Customization customization = new Customization()
+    public static void main(String[] args) throws ChapaException {
+        ChapaClientApi chapaClientRetrofit = new RetrierRetrofitClientProvider.Builder()
+                .baseUrl("https://api.chapa.co/v1/")
+                .maxRetries(3)
+                .timeout(10000)
+                .debug(true)
+                .build()
+                .create();
+
+        Chapa chapa = new Chapa.Builder()
+                .client(new ChapaClient(chapaClientRetrofit))
+                .secretKey("CHASECK_TEST-....")
+                .build();
+
+        Customization customization = new Customization()
                 .setTitle("E-commerce")
                 .setDescription("It is time to pay")
                 .setLogo("https://mylogo.com/log.png");
-
-      PostData postData = new PostData()
-                .setAmount(new BigDecimal("100"))
+        PostData postData = new PostData()
+                .setAmount("100")
                 .setCurrency("ETB")
                 .setFirstName("Abebe")
                 .setLastName("Bikila")
-                .setEmail("abebe@bikila")
-                .setTxRef(Util.generateToken())
+                .setEmail("abebe@bikila.com")
+                .setTxRef(UUID.randomUUID().toString())
                 .setCallbackUrl("https://chapa.co")
                 .setReturnUrl("https://chapa.co")
                 .setSubAccountId("testSubAccountId")
                 .setCustomization(customization);
-      
-      SubAccount subAccount = new SubAccount()
+
+        SubAccountDto subAccountDto = new SubAccountDto()
                 .setBusinessName("Abebe Suq")
                 .setAccountName("Abebe Bikila")
                 .setAccountNumber("0123456789")
-                .setBankCode("96e41186-29ba-4e30-b013-2ca36d7e7025")
-                .setSplitType(SplitType.PERCENTAGE)
+                .setBankCode("853d0598-9c01-41ab-ac99-48eab4da1513")
+                .setSplitType(SplitTypeEnum.PERCENTAGE)
                 .setSplitValue(0.2);
 
-       
-       InitializeResponseData responseData = chapa.initialize(postData);
-       VerifyResponseData verifyResponseData = chapa.verify("tx-myecommerce12345");
-       SubAccountResponseData subAccountResponseData = chapa.createSubAccount(subAccount);
-
-      }
- }
+        // list of banks
+        ResponseBanks banks = chapa.getBanks();
+        if ((banks == null || banks.getData() == null)) {
+            System.out.println("Bank response: " + banks);
+        } else {
+            banks.getData().forEach(System.out::println);
+        }
+        // create subaccount
+        System.out.println("Create SubAccount response: " + chapa.createSubAccount(subAccountDto));
+        // initialize payment
+        System.out.println("Initialize response: " + chapa.initialize(postData));
+        // verify payment
+        System.out.println("Verify response: " + chapa.verify(postData.getTxRef()));
+    }
+}
 ```
 ## Contribution
-If you find any bugs or have any suggestions, please feel free to open an issue or pull request.
+Please feel free to open an issue or pull request.
 
 ## License
-This open-source library is licensed under the terms of the MIT License.
-
-Enjoy!
+MIT

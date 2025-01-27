@@ -1,6 +1,8 @@
 package com.yaphet.chapa;
 
+import com.yaphet.chapa.client.ChapaClient;
 import com.yaphet.chapa.client.IChapaClient;
+import com.yaphet.chapa.client.provider.DefaultRetrofitClientProvider;
 import com.yaphet.chapa.exception.ChapaException;
 import com.yaphet.chapa.model.Bank;
 import com.yaphet.chapa.model.Customization;
@@ -28,6 +30,22 @@ public class Chapa {
     private final String secreteKey;
 
     private final IChapaClient chapaClient;
+
+    /**
+     * @deprecated use {@link Builder} to create an instance of {@link Chapa}
+     *
+     * Left for backward compatibility.
+     */
+    @Deprecated
+    public Chapa(String secretKey) {
+        this.chapaClient = new ChapaClient(
+                new DefaultRetrofitClientProvider.Builder()
+                        .baseUrl("https://api.chapa.co/v1/")
+                        .timeout(10000)
+                        .build()
+                        .create());
+        this.secreteKey = secretKey;
+    }
 
     private Chapa(Builder builder) {
         this.chapaClient = builder.client;
